@@ -1,26 +1,22 @@
 import random
 
 # --- Game Setup: Planets with Production, Demand, and Neutral Spices ---
-# UPDATED PRICES: More chaos, more profit opportunities!
 planets_template = {
     "Terra": {
         "production": "Cinnamon",
         "demand": "Allspice",
         "spices": ["Cinnamon", "Cardamom", "Vanilla", "Allspice", "Clove"],
         "base_prices": {
-            "Cinnamon": 25,    # Production price (fixed)
-            "Cardamom": 100,   # Updated
-            "Vanilla": 90,     # Updated
-            "Allspice": 100,   # Demand price (fixed) - Updated
+            "Cinnamon": 25,
+            "Cardamom": 100,
+            "Vanilla": 90,
+            "Allspice": 100,
             "Clove": 70
         },
-        # Farm-specific fluff text for when the player visits
         "farm_fluff": [
-            "You sit on the porch of your cinnamon farm, sipping a warm drink. The sunset paints the orchard in gold, and the scent of spices fills the air. The trade routes, pirates, and hustle feel like a lifetime ago.",
-            "The cinnamon trees rustle in the breeze. A neighbor waves from across the field. 'Harvest was good this year,' they say. You nod. It was.",
-            "The scent of cinnamon fills the air. You made it. No more fuel calculations, no more pirate attacks. Just peace.",
-            "Your farmhand brings you a fresh cinnamon roll. You take a bite. It’s perfect. You’ve won the game.",
-            "The stars blink above your farm. Somewhere out there, traders are still hustling. Not you. You’re home."
+            "You sit on the porch of your cinnamon farm, sipping a warm drink. The sunset paints the orchard in gold, and the scent of spices fills the air.",
+            "The cinnamon trees rustle in the breeze. A neighbor waves from across the field. 'Harvest was good this year,' they say.",
+            "The scent of cinnamon fills the air. You made it. No more fuel calculations, no more pirate attacks. Just peace."
         ]
     },
     "Zeta-9": {
@@ -28,11 +24,11 @@ planets_template = {
         "demand": "Ginger",
         "spices": ["Saffron", "Turmeric", "Paprika", "Ginger", "Nutmeg"],
         "base_prices": {
-            "Saffron": 100,    # Production price (fixed) - Updated
-            "Turmeric": 50,    # Updated
-            "Paprika": 60,     # Updated
-            "Ginger": 90,      # Demand price (fixed) - Updated
-            "Nutmeg": 135      # Updated
+            "Saffron": 100,
+            "Turmeric": 50,
+            "Paprika": 60,
+            "Ginger": 90,
+            "Nutmeg": 135
         }
     },
     "Void Colony": {
@@ -40,10 +36,10 @@ planets_template = {
         "demand": "Cardamom",
         "spices": ["Void Pepper", "Saffron", "Ginger", "Cardamom", "Clove"],
         "base_prices": {
-            "Void Pepper": 500,  # Production price (fixed)
+            "Void Pepper": 500,
             "Saffron": 200,
-            "Ginger": 65,       # Updated
-            "Cardamom": 80,     # Demand price (fixed)
+            "Ginger": 65,
+            "Cardamom": 80,
             "Clove": 70
         }
     },
@@ -52,11 +48,11 @@ planets_template = {
         "demand": "Vanilla",
         "spices": ["Paprika", "Cinnamon", "Turmeric", "Vanilla", "Allspice"],
         "base_prices": {
-            "Paprika": 30,      # Production price (fixed) - Updated
+            "Paprika": 30,
             "Cinnamon": 50,
             "Turmeric": 30,
-            "Vanilla": 120,     # Demand price (fixed)
-            "Allspice": 80      # Updated
+            "Vanilla": 120,
+            "Allspice": 80
         }
     },
     "Nexus": {
@@ -64,11 +60,11 @@ planets_template = {
         "demand": "Turmeric",
         "spices": ["Clove", "Void Pepper", "Nutmeg", "Saffron", "Turmeric"],
         "base_prices": {
-            "Clove": 35,        # Production price (fixed) - Updated
-            "Void Pepper": 750, # Note: Nexus doesn't produce Void Pepper, but this is its base price here
-            "Nutmeg": 110,      # Updated
-            "Saffron": 175,     # Updated
-            "Turmeric": 40      # Demand price (fixed) - Updated
+            "Clove": 35,
+            "Void Pepper": 750,
+            "Nutmeg": 110,
+            "Saffron": 175,
+            "Turmeric": 40
         }
     }
 }
@@ -79,13 +75,107 @@ for planet_name, planet_data in planets_template.items():
     new_prices = {}
     for spice, price in planet_data["base_prices"].items():
         if spice == planet_data["production"] or spice == planet_data["demand"]:
-            new_prices[spice] = price  # Keep production/demand prices fixed
+            new_prices[spice] = price
         else:
-            new_prices[spice] = max(1, price + random.randint(-10, 10))  # +/- 0-10, min 1
+            new_prices[spice] = max(1, price + random.randint(-10, 10))
     planets[planet_name] = {
         **planet_data,
         "base_prices": new_prices
     }
+
+# --- Cantina Data ---
+cantinas = {
+    "Terra": {
+        "name": "The Cinnamon Tavern",
+        "drink": {
+            "name": "Cinnamon Beer",
+            "ingredient": "Cinnamon",
+            "fluff": [
+                "The warm, spicy beer fills your chest with nostalgia. It tastes like home—if home were a planet covered in cinnamon trees.",
+                "You take a sip. It’s sweet, it’s spicy, it’s… exactly what you needed after a long day of haggling.",
+                "The bartender winks. ‘Made from Terra’s finest. You won’t find this anywhere else.’"
+            ]
+        }
+    },
+    "Zeta-9": {
+        "name": "The Golden Saffron",
+        "drink": {
+            "name": "Saffron Mead",
+            "ingredient": "Saffron",
+            "fluff": [
+                "Golden and rich, this mead tastes like liquid sunlight. You suddenly understand why Zeta-9’s nobles are so smug.",
+                "The mead is so expensive, the glass is lined with actual gold. Or maybe that’s just the lighting.",
+                "You feel fancy just holding the glass. The bartender smirks—you’re clearly not from around here."
+            ]
+        }
+    },
+    "Void Colony": {
+        "name": "The Pepper’s Shadow",
+        "drink": {
+            "name": "Void Pepper Whiskey",
+            "ingredient": "Void Pepper",
+            "fluff": [
+                "The whiskey burns like a supernova going down. You see stars. Literally. Maybe don’t fly the ship for a while.",
+                "This drink is so strong, it’s rumored to power small starships. You feel invincible. (You are not.)",
+                "The bartender warns you: ‘One sip and you’ll forget your name. Two sips and you’ll forget your debts.’"
+            ]
+        }
+    },
+    "Agrica": {
+        "name": "The Paprika Den",
+        "drink": {
+            "name": "Spiced Paprika Ale",
+            "ingredient": "Paprika",
+            "fluff": [
+                "The ale is fiery and bold, just like Agrica’s farmers. You cough a little, but it’s worth it.",
+                "The bartender slides you a glass. ‘Careful, that’s our house special. Made from last season’s best.’",
+                "You take a sip and immediately feel warmer. Maybe it’s the ale, maybe it’s the planet’s famous hospitality."
+            ]
+        }
+    },
+    "Nexus": {
+        "name": "The Clove & Dagger",
+        "drink": {
+            "name": "Clove Rum",
+            "ingredient": "Clove",
+            "fluff": [
+                "The rum is smooth but packs a punch. Nexus traders swear by it to close deals.",
+                "The bartender leans in. ‘This one’s on the house… if you tell me where you got that Void Pepper.’",
+                "You sip it slowly. The flavor is complex, just like the deals made in this cantina."
+            ]
+        }
+    }
+}
+
+# Advice pools
+advice_pools = {
+    "game": [
+        "In theory, it is simple. Buy low, sell high. Move around for better deal. But life, life is more complex than that.",
+        "Taking strangers on your ship can cause trouble. But life without them—all alone all the time—could get boring in the long run.",
+        "You can collect credits forever, but at some point, there’s nothing more to buy. Maybe it’s time for that farm on Terra.",
+        "Weapons are expensive to buy, but losing cargo to pirates will cost you more.",
+        "Not all pirates are worth the fight. Your ship gets damaged, and they might like it. Bribery or running away is a valid option too.",
+        "Nexus is full of bankers and brokers, all high on Void Pepper. They’ll pay any price to get their fix. You can get cheap peppers on Void Colony… or hunt Space Whales if that’s your style.",
+        "Upgrading your ship will let you seize opportunities and face challenges you couldn’t before.",
+        "Bad trades from the past won’t block you from good deals in the future.",
+        "Even if the galaxy looks the same, just following the annual cycles, there are bigger changes in the background, altering the universe forever."
+    ],
+    "divorced": [
+        "Never date a Psionic Girl. You’ll be judged by your thoughts, not just your actions and words.",
+        "Some opportunities happen once in a lifetime. If you see a Space Whale, feast your eyes—it might never happen again.",
+        "If you have a cargo hold full of Void Whiskey, don’t drink it all in one night. The hangover isn’t worth it, even for the spiciest nights.",
+        "You need to look into your heart to save yourself from your other self. Only then will your true self reveal itself.",
+        "There is no grand destiny, only semi-random rolls of unseen dice. We make our own destiny."
+    ],
+    "iroh": [
+        "It’s important to trade with many planets. Wide horizons reveal opportunities unseen on stable routes.",
+        "Life happens all the time, whether you manage it or not. But you can make it cozy and peaceful.",
+        "Bad trades happen. You need to let go of pride and shame. Too much pride is the cause of shame and anger. Trading in anger leads to bad deals.",
+        "Don’t take too much stuff onto your ship—no more than your cargo can hold. Always leave spare space for surprise opportunities.",
+        "If you have a good ship and a bit of credits, you’re already better off than many. Just set a course and keep going until you reach your goal.",
+        "You can accept errands from brokers, but don’t let others decide what your ultimate goal looks like. Your goal is what *you* want to achieve."
+    ]
+}
 
 # --- Ship Setup ---
 ship = {
@@ -93,8 +183,8 @@ ship = {
     "cargo": {},
     "location": "Terra",
     "fuel": 1000,
-    "max_cargo": 100,  # Max units of spices you can carry
-    "farm_bought": False  # Global flag: Has the player bought the cinnamon farm?
+    "max_cargo": 100,
+    "farm_bought": False
 }
 
 # --- Helper Functions ---
@@ -104,7 +194,6 @@ def show_status():
     print(f"Credits: {ship['credits']}")
     print(f"Fuel: {ship['fuel']}")
     print(f"Cargo: {ship['cargo']} (Capacity: {ship['max_cargo'] - sum(ship['cargo'].values())} left)")
-    # Show farm status if on Terra
     if ship['location'] == "Terra" and ship['farm_bought']:
         print("You own a cinnamon farm here. Home sweet home.")
 
@@ -123,12 +212,12 @@ def show_market():
             role = " (DEMAND)"
         print(f"- {spice}: {price} credits{role}")
 
-    # Add farm option to Terra's menu
     if ship['location'] == "Terra":
         if not ship['farm_bought']:
             print("\n6. Buy Cinnamon Farm (10,000 credits)")
         else:
             print("\n6. Visit Cinnamon Farm")
+    print("7. Visit Cantina")
 
 def buy_spice():
     planet = planets[ship["location"]]
@@ -145,7 +234,7 @@ def buy_spice():
         max_buy = min(
             ship["credits"] // price,
             ship["max_cargo"] - sum(ship["cargo"].values()),
-            ship["fuel"]  # 1 fuel per unit
+            ship["fuel"]
         )
         if max_buy <= 0:
             print("Not enough credits, cargo space, or fuel!")
@@ -172,7 +261,7 @@ def sell_spice():
         if spice in planet["base_prices"]:
             sell_price = planet["base_prices"][spice]
         else:
-            sell_price = 1  # Default to 1 if spice not on this planet
+            sell_price = 1
         print(f"{i}. {spice} ({amount} units) - {sell_price} credits/unit")
     try:
         choice = int(input("Choose spice to sell (or 0 to cancel): "))
@@ -192,7 +281,7 @@ def sell_spice():
         ship["cargo"][spice] -= amount
         if ship["cargo"][spice] == 0:
             del ship["cargo"][spice]
-        ship["fuel"] += amount  # Refuel when selling
+        ship["fuel"] += amount
         print(f"Sold {amount} {spice} for {earnings} credits.")
     except (ValueError, IndexError):
         print("Invalid choice.")
@@ -213,7 +302,6 @@ def travel():
         ship["fuel"] -= fuel_cost
         ship["location"] = destination
 
-        # Dynamic pricing: Adjust all prices on this planet by +/- 0-10 when arriving
         for spice in planets[destination]["base_prices"]:
             if spice != planets[destination]["production"] and spice != planets[destination]["demand"]:
                 planets[destination]["base_prices"][spice] = max(
@@ -222,7 +310,6 @@ def travel():
                 )
 
         print(f"Traveled to {destination}. Fuel used: {fuel_cost}")
-        # Random event
         if random.random() < 0.2:
             event = random.choice([
                 f"Pirate attack! Lose {min(100, ship['credits']//2)} credits.",
@@ -257,7 +344,6 @@ def price_check():
             print(f"{planet_name}\t\t{spice}\t\t{price}\t\t{role}")
 
 def visit_farm():
-    """Function to handle visiting the cinnamon farm on Terra."""
     print("\n" + "="*50)
     print(random.choice(planets["Terra"]["farm_fluff"]))
     print("="*50)
@@ -265,15 +351,72 @@ def visit_farm():
     print("[2] Return to the stars")
     choice = input("Choose: ")
     if choice == "1":
-        # Recursively call to stay longer (more fluff!)
         visit_farm()
     elif choice == "2":
         print("\nYou leave the farm, ready to face the galaxy again... or not.")
     else:
         print("You doze off on the porch. Time passes.")
 
+# --- Cantina Functions ---
+def visit_cantina():
+    """Handle visiting the cantina on the current planet."""
+    cantina = cantinas[ship["location"]]
+    print(f"\n=== {cantina['name'].upper()} ({ship['location']}) ===")
+    print("1. I need a drink")
+    print("2. Ask for advice")
+    print("3. I just need to rest for a moment")
+    print("9. Back to spaceport")
+    choice = input("Choose: ")
+
+    if choice == "1":
+        buy_drink(cantina)
+    elif choice == "2":
+        give_advice()
+    elif choice == "3":
+        rest_for_a_moment()
+    elif choice == "9":
+        return
+    else:
+        print("Invalid choice.")
+        visit_cantina()
+
+def buy_drink(cantina):
+    """Buy a drink at the cantina."""
+    drink = cantina["drink"]
+    ingredient_price = planets[ship["location"]]["base_prices"][drink["ingredient"]]
+    drink_cost = max(1, int(ingredient_price * 0.5))  # Drink costs half the ingredient's price
+
+    if ship["credits"] < drink_cost:
+        print(f"You don’t have enough credits for a {drink['name']} ({drink_cost} credits).")
+        return
+
+    ship["credits"] -= drink_cost
+    print(f"\nYou buy a {drink['name']} for {drink_cost} credits.")
+    print(random.choice(drink["fluff"]))
+
+def give_advice():
+    """Give random advice from one of the pools."""
+    pool = random.choice(list(advice_pools.keys()))
+    advice = random.choice(advice_pools[pool])
+    print(f"\n[Bartender ({pool.upper()} ADVICE)]: {advice}")
+
+def rest_for_a_moment():
+    """Rest at the cantina (placeholder for future time skip)."""
+    print("\n" + "-"*50)
+    print("You spend a month in the cantina, drinking, eating snacks, and waiting for a good deal.")
+    print("The days blur together as you watch traders come and go, their stories of profit and loss")
+    print("echoing in your ears. You wonder if life is just a constant train of orders and tasks,")
+    print("and if something awaits you beyond pirates and credits.")
+    print("")
+    print("Maybe it’s time to buy that nice cinnamon farm on Terra, to look at the trees in the sunset")
+    print("instead of all this.")
+    print("-"*50)
+    print("\n[Press Enter to return to the cantina menu...]")
+    input()  # Wait for user to press Enter
+    visit_cantina()
+
 # --- Game Loop ---
-print("=== SPICE SPACE TRADER v5 ===")
+print("=== SPICE SPACE TRADER v6 ===")
 print("Trade spices across the galaxy. Buy low, sell high, and watch out for pirates!")
 print("Commands: 1. Buy, 2. Sell, 3. Travel, 4. Status, 5. Price Check, 0. Quit")
 
@@ -298,7 +441,6 @@ while True:
         elif action == 5:
             price_check()
         elif action == 6 and ship['location'] == "Terra":
-            # Handle farm purchase or visit
             if not ship['farm_bought']:
                 if ship['credits'] >= 10000:
                     ship['credits'] -= 10000
@@ -309,6 +451,8 @@ while True:
                     print("\nYou need 10,000 credits to buy the farm.")
             else:
                 visit_farm()
+        elif action == 7:
+            visit_cantina()
         else:
             print("Invalid action.")
     except ValueError:
