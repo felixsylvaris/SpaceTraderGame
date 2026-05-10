@@ -143,6 +143,28 @@ There are **10 spices** in the game. Each has a **base price** that varies by pl
 - **Lore**: *"You won. The end."*
 - **Note**: You can still trade after buying the farm—retirement is optional!
 ---
+### 🍺 Cantina System
+Every planet has a **unique cantina** where you can:
+- **Buy a local drink** (costs 1-5x the ingredient’s price, e.g., Void Pepper Whiskey = 250 credits).
+- **Ask for advice** (random tips from 3 pools: *Game Advice*, *Divorced Uncle Wisdom*, *Uncle Iroh Wisdom*).
+- **Rest for a moment** (fluff text + time skip).
+
+#### **Drinks by Planet**
+   Planet       | Cantina Name       | Drink               | Cost (Base) |
+ |--------------|--------------------|---------------------|-------------|
+ | Terra        | The Cinnamon Tavern | Cinnamon Beer       | 13          |
+ | Zeta-9       | The Golden Saffron  | Saffron Mead        | 50          |
+ | Void Colony  | The Pepper’s Shadow | Void Pepper Whiskey | 250         |
+ | Agrica       | The Paprika Den     | Spiced Paprika Ale  | 15          |
+ | Nexus        | The Clove & Dagger  | Clove Rum           | 18          |
+
+#### **Advice Pools**
+- **Game Advice**: Practical trading tips.
+- **Divorced Uncle**: Weird, philosophical, or cautionary tales.
+- **Uncle Iroh**: Wise, cozy, or trading-focused wisdom.
+
+---
+
 
 ## **🔧 Technical Notes**
 
