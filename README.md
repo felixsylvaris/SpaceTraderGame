@@ -149,3 +149,8 @@ There are **10 spices** in the game. Each has a **base price** that varies by pl
 - Add **loans/credits** for leveraged trading.
 - Add **ship upgrades** (more cargo space, better fuel efficiency).
 - Add **factions** (e.g., trade guilds that offer bonuses for specific spices).
+- Add **cantine** and buy local drink, does nothing gets tipsy
+- Add **gossip** 2 pools of stories, 1 is flavour trash about Void Pappers
+- Add **galaxy side story** galaxy has a storyline in background it picks 1 story from top in order, we can hear only 1 on each visit so it progresses slowly
+- Add **cantina stranger** personal quest, we smuggle droids, there will be battlestation, rebel base, and princess. 
+  
