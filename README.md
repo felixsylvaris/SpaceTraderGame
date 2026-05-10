@@ -130,6 +130,19 @@ There are **10 spices** in the game. Each has a **base price** that varies by pl
 
 
 ---
+### 🌿 Cinnamon Farm (Win Condition)
+
+- **Cost**: 10,000 credits (purchased on **Terra**).
+- **Effect**:
+  - Unlocks the ability to **visit your farm** on Terra.
+  - Enjoy **peaceful fluff text** about your new life as a cinnamon farmer.
+  - No gameplay impact—just **pure, honest vibes**.
+- **How to Use**:
+  - Buy the farm from Terra’s menu (`6. Buy Cinnamon Farm`).
+  - After purchasing, select `6. Visit Cinnamon Farm` to relax.
+- **Lore**: *"You won. The end."*
+- **Note**: You can still trade after buying the farm—retirement is optional!
+---
 
 ## **🔧 Technical Notes**
 
