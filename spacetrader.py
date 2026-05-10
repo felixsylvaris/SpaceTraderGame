@@ -1,37 +1,75 @@
 import random
 
 # --- Game Setup: Planets with Production, Demand, and Neutral Spices ---
-# Production and demand prices are now explicit in base_prices.
+# UPDATED PRICES: More chaos, more profit opportunities!
 planets_template = {
     "Terra": {
         "production": "Cinnamon",
         "demand": "Allspice",
         "spices": ["Cinnamon", "Cardamom", "Vanilla", "Allspice", "Clove"],
-        "base_prices": {"Cinnamon": 25, "Cardamom": 80, "Vanilla": 120, "Allspice": 90, "Clove": 70}
+        "base_prices": {
+            "Cinnamon": 25,    # Production price (fixed)
+            "Cardamom": 100,   # Updated
+            "Vanilla": 90,     # Updated
+            "Allspice": 100,   # Demand price (fixed) - Updated
+            "Clove": 70
+        },
+        # Farm-specific fluff text for when the player visits
+        "farm_fluff": [
+            "You sit on the porch of your cinnamon farm, sipping a warm drink. The sunset paints the orchard in gold, and the scent of spices fills the air. The trade routes, pirates, and hustle feel like a lifetime ago.",
+            "The cinnamon trees rustle in the breeze. A neighbor waves from across the field. 'Harvest was good this year,' they say. You nod. It was.",
+            "The scent of cinnamon fills the air. You made it. No more fuel calculations, no more pirate attacks. Just peace.",
+            "Your farmhand brings you a fresh cinnamon roll. You take a bite. It’s perfect. You’ve won the game.",
+            "The stars blink above your farm. Somewhere out there, traders are still hustling. Not you. You’re home."
+        ]
     },
     "Zeta-9": {
         "production": "Saffron",
         "demand": "Ginger",
         "spices": ["Saffron", "Turmeric", "Paprika", "Ginger", "Nutmeg"],
-        "base_prices": {"Saffron": 200, "Turmeric": 30, "Paprika": 20, "Ginger": 60, "Nutmeg": 40}
+        "base_prices": {
+            "Saffron": 100,    # Production price (fixed) - Updated
+            "Turmeric": 50,    # Updated
+            "Paprika": 60,     # Updated
+            "Ginger": 90,      # Demand price (fixed) - Updated
+            "Nutmeg": 135      # Updated
+        }
     },
     "Void Colony": {
         "production": "Void Pepper",
         "demand": "Cardamom",
         "spices": ["Void Pepper", "Saffron", "Ginger", "Cardamom", "Clove"],
-        "base_prices": {"Void Pepper": 500, "Saffron": 200, "Ginger": 60, "Cardamom": 80, "Clove": 70}
+        "base_prices": {
+            "Void Pepper": 500,  # Production price (fixed)
+            "Saffron": 200,
+            "Ginger": 65,       # Updated
+            "Cardamom": 80,     # Demand price (fixed)
+            "Clove": 70
+        }
     },
     "Agrica": {
         "production": "Paprika",
         "demand": "Vanilla",
         "spices": ["Paprika", "Cinnamon", "Turmeric", "Vanilla", "Allspice"],
-        "base_prices": {"Paprika": 20, "Cinnamon": 50, "Turmeric": 30, "Vanilla": 120, "Allspice": 90}
+        "base_prices": {
+            "Paprika": 30,      # Production price (fixed) - Updated
+            "Cinnamon": 50,
+            "Turmeric": 30,
+            "Vanilla": 120,     # Demand price (fixed)
+            "Allspice": 80      # Updated
+        }
     },
     "Nexus": {
         "production": "Clove",
         "demand": "Turmeric",
         "spices": ["Clove", "Void Pepper", "Nutmeg", "Saffron", "Turmeric"],
-        "base_prices": {"Clove": 70, "Void Pepper": 750, "Nutmeg": 40, "Saffron": 200, "Turmeric": 30}
+        "base_prices": {
+            "Clove": 35,        # Production price (fixed) - Updated
+            "Void Pepper": 750, # Note: Nexus doesn't produce Void Pepper, but this is its base price here
+            "Nutmeg": 110,      # Updated
+            "Saffron": 175,     # Updated
+            "Turmeric": 40      # Demand price (fixed) - Updated
+        }
     }
 }
 
@@ -55,7 +93,8 @@ ship = {
     "cargo": {},
     "location": "Terra",
     "fuel": 1000,
-    "max_cargo": 100  # Max units of spices you can carry
+    "max_cargo": 100,  # Max units of spices you can carry
+    "farm_bought": False  # Global flag: Has the player bought the cinnamon farm?
 }
 
 # --- Helper Functions ---
@@ -65,6 +104,9 @@ def show_status():
     print(f"Credits: {ship['credits']}")
     print(f"Fuel: {ship['fuel']}")
     print(f"Cargo: {ship['cargo']} (Capacity: {ship['max_cargo'] - sum(ship['cargo'].values())} left)")
+    # Show farm status if on Terra
+    if ship['location'] == "Terra" and ship['farm_bought']:
+        print("You own a cinnamon farm here. Home sweet home.")
 
 def show_market():
     planet = planets[ship["location"]]
@@ -80,6 +122,13 @@ def show_market():
         elif spice == planet["demand"]:
             role = " (DEMAND)"
         print(f"- {spice}: {price} credits{role}")
+
+    # Add farm option to Terra's menu
+    if ship['location'] == "Terra":
+        if not ship['farm_bought']:
+            print("\n6. Buy Cinnamon Farm (10,000 credits)")
+        else:
+            print("\n6. Visit Cinnamon Farm")
 
 def buy_spice():
     planet = planets[ship["location"]]
@@ -207,8 +256,24 @@ def price_check():
                 role = "DEMAND"
             print(f"{planet_name}\t\t{spice}\t\t{price}\t\t{role}")
 
+def visit_farm():
+    """Function to handle visiting the cinnamon farm on Terra."""
+    print("\n" + "="*50)
+    print(random.choice(planets["Terra"]["farm_fluff"]))
+    print("="*50)
+    print("\n[1] Stay a little longer")
+    print("[2] Return to the stars")
+    choice = input("Choose: ")
+    if choice == "1":
+        # Recursively call to stay longer (more fluff!)
+        visit_farm()
+    elif choice == "2":
+        print("\nYou leave the farm, ready to face the galaxy again... or not.")
+    else:
+        print("You doze off on the porch. Time passes.")
+
 # --- Game Loop ---
-print("=== SPICE SPACE TRADER v3 ===")
+print("=== SPICE SPACE TRADER v5 ===")
 print("Trade spices across the galaxy. Buy low, sell high, and watch out for pirates!")
 print("Commands: 1. Buy, 2. Sell, 3. Travel, 4. Status, 5. Price Check, 0. Quit")
 
@@ -219,6 +284,8 @@ while True:
         action = int(input("\nChoose action: "))
         if action == 0:
             print("Game over. Final credits:", ship["credits"])
+            if ship["farm_bought"]:
+                print("You retired to your cinnamon farm. You won.")
             break
         elif action == 1:
             buy_spice()
@@ -230,6 +297,18 @@ while True:
             show_status()
         elif action == 5:
             price_check()
+        elif action == 6 and ship['location'] == "Terra":
+            # Handle farm purchase or visit
+            if not ship['farm_bought']:
+                if ship['credits'] >= 10000:
+                    ship['credits'] -= 10000
+                    ship['farm_bought'] = True
+                    print("\nCongratulations! You now own a cinnamon farm on Terra.")
+                    print("You can visit it anytime by selecting 'Visit Cinnamon Farm' when on Terra.")
+                else:
+                    print("\nYou need 10,000 credits to buy the farm.")
+            else:
+                visit_farm()
         else:
             print("Invalid action.")
     except ValueError:
