@@ -158,6 +158,7 @@ There are **10 spices** in the game. Each has a **base price** that varies by pl
 ## **📝 Changelog (Ideas for Future Versions)**
 
 - Add **spice spoilage** (random loss of cargo during travel).
+- Add **WorkShop** Allows to buy upgrades, cargo, fueltank, weapons
 - Add a **black market planet** with illegal trades.
 - Add **loans/credits** for leveraged trading.
 - Add **ship upgrades** (more cargo space, better fuel efficiency).
