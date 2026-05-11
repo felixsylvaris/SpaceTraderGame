@@ -16,6 +16,14 @@ To each planet add 1 or 2 good from already existing. So each good will exist on
 The price need to be similar to what already existing. With counting that production halves cost locally. And Demand is like +50%
 We avoid perfect pairs (can travel back and fort for oscilation trade). 
 
+Zeta 9 Cinamone 40
+Agrica Cardamone 60
+Void Colony Vanilla 100
+Nexus Allspice 90
+terra Paprice 50
+Agrica Nutmeg 100
+Terra Ginge 70
+
 ## Death and taxes
 Adding taxes will definetly make game better. 
 Each time we sell goods we pay 2% of sale value in taxes. so 10x35=350 income, and 7c tax. We get information about tax paid. And it is removed from our account. minimal tax is 1. It is rounded up to full credit. 
@@ -32,6 +40,13 @@ In month of harvest price drop but in 5 months there is antiharvest month when g
 Somple good price adjuster by season: -20,-15,-5,0,+5,+10,+20,+15,+10,0. So Ianu is harvest, Septr is antiharvest. Maybe it dont need to be perfect 5 gap. Can just rotate this templete by 1 for each good. 
 So we have galaxy harvest change + random drift. The exact amptitude depends on good initial price, it could be max -20, or could be -30. Actually - prices are risky. Due to negative price. 
 The +price could be much more generous. 
+Patterns: 
+Low price patter 0,0,+5,+5,+10,+10,+15,+15,+20,+10 (cinamone, tumeric)
+Mid price pattern: -20,-15,-5,0,+5,+10,+20,+15,+10,0 vanilla, clove, paprica, ginger, clove, 
+High Pattern -20,-10,0,+10,+20,+30,+40,+50,+30,+20 Safron Allspice, Nutmeg 
+Void Pepper is special
+
+
 
 ## Pumpkin latte Festival
 Each planet has one month and one good (which is traded on planet) which is used in Festival. This makes price go crazy for that month. 
@@ -39,6 +54,9 @@ So Terra Cinamone Roll Festival could add +50c for month, but the next month it 
 The festival should always happen after harvest, but could be some time. 
 Generete 5 fluff text for bartender advice game, which would mention Planet + Good + Month +fesitval Name + funny detail. Like we fill dummy of tentacle monster with papricas and beat it with plasma hammers to release prize. 
 And add it to bartender advice list. 
+Low price festival +50
+Mid price festival +100
+High price, +100 or nope, just pick good which is low or mid. No void papper even on nexus. Everyday is void ppepper day. 
 
 ## Engineering Bay
 Engineering Bay is place where we can upgrade our ship. 
@@ -69,16 +87,20 @@ list of uprgades:
 - Stern tank 1000c +200 fuel cap
 - Portside tank 2000c +300fuel cap
 - Cylindrical Tank 3000c +500Fuel cap
-- Small Hold 1000c 1000c +100 cargo
+- Small Hold 1000c +100 cargo
 - Side Hold 1000c 2000c +100 cargo [only Terra]
 - Grain Silo 3000c +200cargo [only Agrica]
 - BrokerLicense 1000c unlock peek price [Only Nexus]
 - Passanger Quoters 1000c unlock 1 passanger slot
 - Long Range Radar 3000c [Only Terra] We reduce chance for pirates by 15%
+- Booster 1000c [Only Void Colony] Makes running away from pirate cost 5*angst. We can make route from Void Colony to Nexus in 3 parsec. 
 
-  ### Galactic Broker License
+  **Weapon stacking** - we can buy multiple weapons and they stack for total weapons=3 power
+
+  ## Galactic Broker License
   There is option to peek prices on all prices. At start of the game it shows "You need to buy Galactic Broker License. Go to Nexus to get one. Maybe sell the ship to afford it."
   After Broker License is installed we can peek at prices from all planets.
+  The feature works as now, just need unlock to use it otherwise there is text what we should do. After we bought our license it works as now. 
 
   ## Passanger mechanic
   To pick passangers we need to upgrade passanger quoters on our ship.
@@ -94,24 +116,30 @@ list of uprgades:
   Or maybe invent some extra passanger type fallowing the type. So there will be a list to pick one. Ideally already made it some form of list, so i can add more in future.
 
   ## Pirates Encounters
-  Global piratangs=10
-  global piratbribe=100
+  runtime piratangs=10
+  runtime piratbribe=100
   
   When we leave planet there is 25% chance we get pirate encounter.
   Each time we encounter pirate they get +1 piratangst
   Options with pirates
   1) Fight +2piratangst
-  2) Flight (pay 20 fuel*pirate agresion) we need to have that.
+  2) Flight (pay 20 fuel*pirate agresion) we need to have that. Need to tell if we have enought fuel. Works better with Booster
   3) Bribe 100, but +100 each time, they get greedy, but early game we have get from jail card. Pirateangst-3
   4) Drop cargo - we loose half of each cargo type round up min 1 of each. Pirates let us go. Pirateangst-2
   5) Bluff Out - we claim we are empty. If our total cargo less than 11 we autopass. Otherwise 50% to bluff pass if we failed piratangst+2 and this option is off in this encounter.
-  6) Surrender - we surrender our ship, and we are sold as crypto miner on Zeta 9. GAME OVER
- 
+  6) Surrender - we surrender our ship, and we are sold as crypto miner on Zeta 9. GAME OVER We need to inform that this could be the end for us. 
+
+Pirate Bribe amount is persisting. Starts game with 100, and each time we use this option it rises by 100
+
   ### 1) Fight Pirates
-  We estimate pirate power. Max(1, angst%20) and compare it to our weapons. Options
+  We estimate pirate power. Max(1, angst//20) and compare it to our weapons. Options
   We are weaker < we loose half of our cargo anyway as panic button.But we continue voyage. Month dont pass extra. 
   We are equal == We scare off pirate away from this porcupine.
   We are superior > We destroyed pirate scum And get 100*pirateangst bounty. Pirateangst+3. We continue our journey
+
+  ## Cheat code
+  In the planet view if we type
+  "!credits 1000" when 1000 could be any number we get 1000 credits, it is cheat code! The game does not tell us about it. It could be 100000
 
   
 
