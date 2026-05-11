@@ -193,6 +193,47 @@ Every planet has a **unique cantina** where you can:
 ---
 ## Past Patch Notes
 
+
+v8  (current)
+  + Date & Calendar: turn, month (10-month year), year 2201
+    Month names: Ianu Febu Mari Aprix Maiu Iuin Septr Octo Nova Dedl
+    Travel and cantina rest both advance month+turn
+  + Extra Goods: each good now on 3 planets
+    Zeta-9 +Cinnamon(40), Agrica +Cardamom(60), Void Colony +Vanilla(100)
+    Nexus +Allspice(90), Terra +Paprika(50), Agrica +Nutmeg(100), Terra +Ginger(70)
+  + Death and Taxes: 2% tax on every sale, min 1cr, rounded up
+  + Inflation: each turn, neutral good prices drift ±1-10 / ±1-9, floor 10
+    Production and Demand prices remain frozen
+  + Galaxy Harvest Season: each good has a harvest month and seasonal pattern
+    Low / Mid / High patterns; Void Pepper has no season
+  + Pumpkin Latte Festival: each planet has one annual festival month+good
+    Low +50cr spike, Mid +100cr spike; post-festival drop next month
+    5 flavour bartender tips about festivals added to advice pool
+  + Engineering Bay: Fuel Up, Drain Fuel, Upgrades
+    FUEL_PRICE global (1cr/unit); min 50 fuel to leave port
+    Drain options: 100/200/500/1000/90% — cannot drain below 50
+  + Ship Upgrades (bought once, some planet-locked):
+    Kinetic Launcher, Mining Laser (Zeta-9), Void Torpedo (Void Colony)
+    Stern/Portside/Cylindrical tanks (+fuel cap)
+    Small Hold, Side Hold (Terra), Grain Silo (Agrica) (+cargo)
+    Broker License (Nexus) — unlocks price_check
+    Passenger Quoters — unlocks passenger slot
+    Long Range Radar (Terra) — -15% pirate chance
+    Booster (Void Colony) — flee cost 5×angst instead of 20×angst
+  + Galactic Broker License gate on price_check
+  + Passenger mechanic: 20% spawn per planet visit / cantina rest
+    One slot; Whitemaine the Pride Mercenary implemented
+    Cantina shows traveler status; deliver for +300cr
+  + Pirate Encounters overhauled:
+    25% base chance (-15% with radar); piratangst runtime, piratbribe runtime
+    Options: Fight / Flee / Bribe / Drop Cargo / Bluff / Surrender(GAME OVER)
+    Fight compares weapons vs Max(1, angst//20)
+    Bribe persists and rises +100 each use
+    Flee cost 20×angst (5×angst with Booster), capped at fuel-50
+    Bounty on superior fight: 100×angst
+  + Cheat code: type "!credits N" at action prompt for N credits (silent)
+  + Save/Load updated to persist all new state
+
 **Changes from v6:**
   - requests-ready: RandomEventAPI + future SpaceTraderAPI hook
   - Proper event system (dict-driven, no fragile string parsing)
