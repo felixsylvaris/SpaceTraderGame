@@ -188,5 +188,20 @@ Every planet has a **unique cantina** where you can:
 - Add **cantine** and buy local drink, does nothing gets tipsy
 - Add **gossip** 2 pools of stories, 1 is flavour trash about Void Pappers
 - Add **galaxy side story** galaxy has a storyline in background it picks 1 story from top in order, we can hear only 1 on each visit so it progresses slowly
-- Add **cantina stranger** personal quest, we smuggle droids, there will be battlestation, rebel base, and princess. 
+- Add **cantina stranger** personal quest, we smuggle droids, there will be battlestation, rebel base, and princess.
+
+---
+## Past Patch Notes
+
+**Changes from v6:**
+  - requests-ready: RandomEventAPI + future SpaceTraderAPI hook
+  - Proper event system (dict-driven, no fragile string parsing)
+  - Fuel and cargo are now SEPARATE resources
+  - Infinite recursion fixed (farm visit, cantina rest)
+  - price_check() uses clean columnar formatting
+  - Input validation loops everywhere
+  - save_game() / load_game() via JSON
+  - Distance-based travel fuel costs (planet index delta)
+  - Pirate events have flee/bribe/fight options
+  - Galaxy background story queue
   
