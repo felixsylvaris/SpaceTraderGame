@@ -2,6 +2,8 @@
 =============================================================
   SPICE SPACE TRADER  —  Changelog
 =============================================================
+v8.1(small twiches)
+- drop price on Void Colony of Clover to 40 to avoid perfect pair with Nexus. 
 
 v8  (current)
   + Date & Calendar: turn, month (10-month year), year 2201
@@ -279,7 +281,7 @@ planets_template = {
         "spices": ["Void Pepper", "Saffron", "Ginger", "Cardamom", "Clove", "Vanilla"],
         "base_prices": {
             "Void Pepper": 500, "Saffron": 200, "Ginger": 65,
-            "Cardamom": 80, "Clove": 70, "Vanilla": 100,
+            "Cardamom": 80, "Clove": 40, "Vanilla": 100,
         },
     },
     "Agrica": {
