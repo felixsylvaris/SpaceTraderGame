@@ -1,5 +1,8 @@
 Request for next update.  
 
+maybe lost messege:
+here is file i changed. Engineering Bay stays in Starport for now. I thought so much about it it was already in my eyes. We need some low value goods. So make sure that paprica is always low. Allspice.. default 120... even if in game there is low price, it could be hand fixed anytime.  Yes ultimate low for cinanome is 15-5, and max 155.  But since low goods have small spread... they will stay away from 0. Ok make the check if module instaled. (travelers). For now blast the song full speed. At least in terminal for now i could scroll back. Code.
+
 # Small Tweaks
 I changed .py file. Dont reatract this. 
 v8.1(small twiches)
