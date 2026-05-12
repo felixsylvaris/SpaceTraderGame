@@ -4,6 +4,8 @@
 =============================================================
 v8.1(small twiches)
 - drop price on Void Colony of Clover to 40 to avoid perfect pair with Nexus. 
+- added high festival boost for allspice
+- boosted void torpeda +2, so we can hunt pirates more efficient
 
 v8  (current)
   + Date & Calendar: turn, month (10-month year), year 2201
@@ -138,7 +140,7 @@ SEASON_HIGH = [-20, -10, 0, +10, +20, +30, +40, +50, +30, +20]
 GOOD_SEASONS = {
     "Cinnamon":   (0,  "low"),   # harvest Ianu
     "Turmeric":   (1,  "low"),   # harvest Febu
-    "Paprika":    (2,  "mid"),   # harvest Mari
+    "Paprika":    (2,  "low"),   # harvest Mari
     "Ginger":     (3,  "mid"),   # harvest Aprix
     "Clove":      (4,  "mid"),   # harvest Maiu
     "Vanilla":    (5,  "mid"),   # harvest Iuin
@@ -152,15 +154,15 @@ GOOD_SEASONS = {
 
 SEASON_PATTERNS = {"low": SEASON_LOW, "mid": SEASON_MID, "high": SEASON_HIGH}
 
-FESTIVAL_BOOST  = {"low": 50, "mid": 100}
+FESTIVAL_BOOST  = {"low": 50, "mid": 75, "high":100}
 
 # Planet festivals: (good, month_index, festival_name, boost_type)
 PLANET_FESTIVALS = {
     "Terra":       ("Cinnamon",   2, "Cinnamon Roll Festival",   "low"),
     "Zeta-9":      ("Ginger",     5, "Golden Ginger Gala",       "mid"),
     "Void Colony": ("Vanilla",    7, "Void Vanilla Vigil",       "mid"),
-    "Agrica":      ("Paprika",    3, "Paprika Panic Parade",     "mid"),
-    "Nexus":       ("Allspice",   9, "Allspice Arbitrage Fête",  "low"),
+    "Agrica":      ("Paprika",    3, "Paprika Panic Parade",     "low"),
+    "Nexus":       ("Allspice",   9, "Allspice Arbitrage Fête",  "high"),
 }
 
 
@@ -385,7 +387,7 @@ UPGRADES = {
     "void_torpedo": {
         "name": "Void Torpedo", "cost": 5000, "planet": "Void Colony",
         "desc": "Weapon+1. Void Colony special. Extremely illegal elsewhere.",
-        "apply": lambda ship: ship.update({"weapons": ship["weapons"] + 1}),
+        "apply": lambda ship: ship.update({"weapons": ship["weapons"] + 2}),
     },
     "stern_tank": {
         "name": "Stern Tank", "cost": 1000, "planet": None,
