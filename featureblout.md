@@ -33,6 +33,15 @@ If stockpile is at least 80% full the consumption happens at x2 rate. It stacks 
 ### Void pappers
 Produce 30 Void pappers on Void Colony in 10th month. and we consume 2 on void colony and 4 on Nexus. 
 
+## Local Market: 
+On each Promenade create "Local Market" location. It will contain special 1 stor deals. 
+Each time we visit planet there will be rolled 3 different goods in local market. And the price will be default price +sell price +/- (5,10,15 from price category). Local market only sells. 
+When we enter planet the News Feed will generete line "Hot Deals: Good: Price, x3"  So it will print local deals for us. Byt only once per visit. 
+We can only buy from local market. 
+The quntity is 5/10/20. So small quantities. We can get void peppers that way. 
+When we buy we have one shot, one opportunity, even when we buy 1 amount the trade is removed from list, and no longer visible. Trader just decides to go elsewhere. 
+The good on local market dont have to be planet goods. Just intependent trader as us, doing his best. 
+
 ---
 ### Future Feature (dont code yet this)
 Somewhen in the future there could be extra optio ot invest in local farmland and catgirl cafes. So Player can burn money to alter local production and consumption. In exchange for some passive profit at low rate. 
