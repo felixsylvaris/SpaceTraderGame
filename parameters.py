@@ -109,7 +109,7 @@ SEASON_PATTERNS = {"low": SEASON_LOW, "mid": SEASON_MID, "high": SEASON_HIGH}
 # boost_type maps to FESTIVAL_BOOST amounts below
 # month after festival the good's base price drops by same amount
 
-FESTIVAL_BOOST = {"low": 50, "mid": 75, "high": 100}
+FESTIVAL_BOOST = {"low": 25, "mid": 35, "high": 50}
 
 PLANET_FESTIVALS = {
     "Terra":       ("Cinnamon", 2, "Cinnamon Roll Festival",  "low"),
@@ -226,3 +226,68 @@ CONCERT_TICKET = 10
 # ── TAXES ────────────────────────────────────────────────────
 SALE_TAX_RATE = 0.02   # 2% of gross sale value
 SALE_TAX_MIN  = 1      # minimum tax per transaction
+
+# ── STOCKPILES ───────────────────────────────────────────────
+# Maximum stockpile size per price category
+STOCKPILE_MAX   = {"low": 500, "mid": 300, "high": 100}
+# Starting stockpile (roughly half of max — hand-mod per planet below)
+STOCKPILE_START = {"low": 250, "mid": 150, "high":  50}
+
+# Stockpile pressure on prices — applied after drift each turn
+# If stockpile < LOW_THRESHOLD * max  → price rises by PRESSURE amount
+# If stockpile > HIGH_THRESHOLD * max → price drops by PRESSURE amount
+STOCKPILE_LOW_THRESHOLD  = 0.20
+STOCKPILE_HIGH_THRESHOLD = 0.80
+STOCKPILE_PRESSURE       = {"low": 5, "mid": 10, "high": 20}
+
+# Per-planet starting stockpile overrides.
+# Key: (planet_name, good) → starting amount.
+# If not listed here, STOCKPILE_START[category] is used.
+# Hand-mod this to create interesting starting conditions.
+STOCKPILE_OVERRIDES = {
+    # ("Void Colony", "Void Pepper"): 10,   # example: start very scarce
+    # ("Nexus", "Void Pepper"):       5,    # example: nearly dry at Nexus
+}
+
+# ── PRODUCTION ───────────────────────────────────────────────
+# Base production added to stockpile during harvest month, per price category.
+# Only on planets that carry the good.
+PRODUCTION_BASE = {"low": 64, "mid": 32, "high": 16}
+
+# Multiplier if planet is the PRODUCTION planet for that good
+PRODUCTION_HOME_MULT = 3.0
+
+# Multiplier if stockpile is literally 0 at time of production (generous harvest)
+PRODUCTION_ZERO_MULT = 1.5
+
+# ── CONSUMPTION ──────────────────────────────────────────────
+# Units consumed per month per planet that carries the good.
+CONSUMPTION_BASE = {"low": 7, "mid": 4, "high": 2}
+
+# Multiplier if planet is the DEMAND planet for that good
+CONSUMPTION_DEMAND_MULT = 2.0
+
+# Multiplier if stockpile >= HIGH_THRESHOLD (abundance drives extra use)
+# Stacks with demand multiplier — max effective multiplier = 4×
+CONSUMPTION_OVERFLOW_MULT = 2.0
+
+# ── VOID PEPPER SPECIAL ──────────────────────────────────────
+# Void Pepper has no standard harvest season.
+# It gets a fixed annual production event and fixed consumption.
+VOID_PEPPER_PRODUCTION_MONTH  = 9        # month index 9 = Dedl (10th month)
+VOID_PEPPER_PRODUCTION_AMOUNT = 30       # units produced on Void Colony only
+VOID_PEPPER_CONSUMPTION = {              # units consumed per month per planet
+    "Void Colony": 2,
+    "Nexus":       4,
+}
+
+# ── LOCAL MARKET ─────────────────────────────────────────────
+# 5 independent trader slots rolled fresh on each planet arrival.
+# Traders operate outside local stockpile — goods from the void.
+LOCAL_MARKET_SLOTS    = 5
+# Quantity available per slot, by price category
+LOCAL_MARKET_QTY      = {"low": 20, "mid": 10, "high": 5}
+# Price = sell_price + spread_amount ± random(0, LOCAL_MARKET_VARIANCE)
+LOCAL_MARKET_VARIANCE = {"low": 5, "mid": 10, "high": 15}
+# Mystery Crate excluded from local market rolls
+LOCAL_MARKET_EXCLUDE  = {"Mystery Crate"}
