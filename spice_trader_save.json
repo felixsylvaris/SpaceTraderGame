@@ -1,0 +1,307 @@
+{
+  "ship": {
+    "credits": 44,
+    "cargo": {
+      "Clove": 24,
+      "Cinnamon": 93
+    },
+    "location": "Terra",
+    "fuel": 280,
+    "max_fuel": 500,
+    "max_cargo": 200,
+    "farm_bought": false,
+    "weapons": 1,
+    "broker_license": true,
+    "passenger_slot": true,
+    "passenger": null,
+    "radar": false,
+    "booster": false,
+    "upgrades_bought": [
+      "passenger_quoters",
+      "broker_license",
+      "kinetic_launcher",
+      "side_hold"
+    ]
+  },
+  "planets_prices": {
+    "Terra": {
+      "base_prices": {
+        "Cinnamon": 54,
+        "Cardamom": 98,
+        "Vanilla": 111,
+        "Allspice": 161,
+        "Clove": 69,
+        "Paprika": 57,
+        "Ginger": 69
+      }
+    },
+    "Zeta-9": {
+      "base_prices": {
+        "Saffron": 152,
+        "Turmeric": 54,
+        "Paprika": 52,
+        "Ginger": 35,
+        "Nutmeg": 122,
+        "Cinnamon": 37
+      }
+    },
+    "Void Colony": {
+      "base_prices": {
+        "Void Pepper": 540,
+        "Saffron": 203,
+        "Ginger": 52,
+        "Cardamom": 65,
+        "Clove": 39,
+        "Vanilla": 68
+      }
+    },
+    "Agrica": {
+      "base_prices": {
+        "Paprika": 21,
+        "Cinnamon": 45,
+        "Turmeric": 51,
+        "Vanilla": 154,
+        "Allspice": 110,
+        "Cardamom": 56,
+        "Nutmeg": 108
+      }
+    },
+    "Nexus": {
+      "base_prices": {
+        "Clove": 63,
+        "Void Pepper": 731,
+        "Nutmeg": 106,
+        "Saffron": 176,
+        "Turmeric": 26,
+        "Allspice": 36
+      }
+    }
+  },
+  "stockpiles": {
+    "Terra": {
+      "Cinnamon": 219,
+      "Cardamom": 142,
+      "Vanilla": 142,
+      "Allspice": 26,
+      "Clove": 300,
+      "Paprika": 244,
+      "Ginger": 142,
+      "Mystery Crate": 5
+    },
+    "Zeta-9": {
+      "Saffron": 53,
+      "Turmeric": 244,
+      "Paprika": 244,
+      "Ginger": 102,
+      "Nutmeg": 46,
+      "Cinnamon": 304
+    },
+    "Void Colony": {
+      "Void Pepper": 50,
+      "Saffron": 71,
+      "Ginger": 142,
+      "Cardamom": 102,
+      "Clove": 142,
+      "Vanilla": 142
+    },
+    "Agrica": {
+      "Paprika": 351,
+      "Cinnamon": 244,
+      "Turmeric": 244,
+      "Vanilla": 102,
+      "Allspice": 0,
+      "Cardamom": 142,
+      "Nutmeg": 46
+    },
+    "Nexus": {
+      "Clove": 16,
+      "Void Pepper": 20,
+      "Nutmeg": 46,
+      "Saffron": 46,
+      "Turmeric": 174,
+      "Allspice": 92
+    }
+  },
+  "local_market": {
+    "Terra": [
+      {
+        "good": "Turmeric",
+        "price": 10,
+        "quantity": 20,
+        "sold": false
+      },
+      {
+        "good": "Ginger",
+        "price": 74,
+        "quantity": 10,
+        "sold": false
+      },
+      {
+        "good": "Saffron",
+        "price": 44,
+        "quantity": 5,
+        "sold": false
+      },
+      {
+        "good": "Clove",
+        "price": 94,
+        "quantity": 10,
+        "sold": false
+      },
+      {
+        "good": "Cardamom",
+        "price": 101,
+        "quantity": 10,
+        "sold": false
+      }
+    ],
+    "Zeta-9": [
+      {
+        "good": "Cardamom",
+        "price": 27,
+        "quantity": 10,
+        "sold": false
+      },
+      {
+        "good": "Nutmeg",
+        "price": 122,
+        "quantity": 5,
+        "sold": false
+      },
+      {
+        "good": "Cinnamon",
+        "price": 71,
+        "quantity": 20,
+        "sold": false
+      },
+      {
+        "good": "Turmeric",
+        "price": 53,
+        "quantity": 20,
+        "sold": false
+      },
+      {
+        "good": "Ginger",
+        "price": 75,
+        "quantity": 10,
+        "sold": false
+      }
+    ],
+    "Void Colony": [
+      {
+        "good": "Paprika",
+        "price": 12,
+        "quantity": 20,
+        "sold": false
+      },
+      {
+        "good": "Saffron",
+        "price": 239,
+        "quantity": 5,
+        "sold": false
+      },
+      {
+        "good": "Saffron",
+        "price": 252,
+        "quantity": 5,
+        "sold": false
+      },
+      {
+        "good": "Paprika",
+        "price": 14,
+        "quantity": 20,
+        "sold": false
+      },
+      {
+        "good": "Saffron",
+        "price": 244,
+        "quantity": 5,
+        "sold": false
+      }
+    ],
+    "Nexus": [
+      {
+        "good": "Ginger",
+        "price": 15,
+        "quantity": 10,
+        "sold": false
+      },
+      {
+        "good": "Nutmeg",
+        "price": 89,
+        "quantity": 5,
+        "sold": false
+      },
+      {
+        "good": "Cinnamon",
+        "price": 7,
+        "quantity": 20,
+        "sold": false
+      },
+      {
+        "good": "Cinnamon",
+        "price": 10,
+        "quantity": 20,
+        "sold": false
+      },
+      {
+        "good": "Vanilla",
+        "price": 16,
+        "quantity": 10,
+        "sold": false
+      }
+    ],
+    "Agrica": [
+      {
+        "good": "Clove",
+        "price": 12,
+        "quantity": 10,
+        "sold": false
+      },
+      {
+        "good": "Vanilla",
+        "price": 151,
+        "quantity": 10,
+        "sold": false
+      },
+      {
+        "good": "Nutmeg",
+        "price": 110,
+        "quantity": 5,
+        "sold": false
+      },
+      {
+        "good": "Void Pepper",
+        "price": 137,
+        "quantity": 5,
+        "sold": false
+      },
+      {
+        "good": "Ginger",
+        "price": 14,
+        "quantity": 10,
+        "sold": false
+      }
+    ]
+  },
+  "turn": 11,
+  "month_index": 0,
+  "year": 2202,
+  "piratangst": 11,
+  "piratbribe": 100,
+  "galaxy_story_index": 3,
+  "passenger_waiting": {
+    "shortname": "Whitemaine",
+    "fullname": "Whitemaine, Pride Mercenary",
+    "cantina_text": "A large lion-like mercenary with two laser guns holstered on his back nurses a drink in the corner. He's looking for his lost cub \u2014 the little furball is always on another planet, apparently.",
+    "exit_text": "Whitemaine lumbers off the ship the moment the ramp drops. 'I hate hyperlines,' he growls. 'I hate teleportation. I hate space.' He slaps 300 credits into your hand without looking back.",
+    "destination": "Zeta-9"
+  },
+  "festival_drops_applied": [
+    "Nexus_Allspice_dropped_2202",
+    "Void Colony_Vanilla_dropped_2201",
+    "Agrica_Paprika_dropped_2201",
+    "Terra_Cinnamon_dropped_2201",
+    "Zeta-9_Ginger_dropped_2201"
+  ]
+}
