@@ -169,6 +169,7 @@ FARM_FLUFF = [
 NEWS_TRAVELER  = "  📋 Traveler waiting in the Promenade Cantina: {shortname} → {destination}"
 NEWS_FESTIVAL  = "  🎊 Join the {festival_name} on {planet} this {month_name}! Let the fun begin!"
 NEWS_HARVEST   = "  🌾 {harvest_good} harvest in full swing this {month_name}. Fill your hold while yields last."
+NEWS_MARKET    = "  🛒 Hot Deals: {deals}. Visit Local Market at Promenade. Come fast, don't be last."
 
 # ── CONCERT HALL ─────────────────────────────────────────────
 
