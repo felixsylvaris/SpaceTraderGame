@@ -50,3 +50,16 @@ and so on.
 -> Good job you are inside Temple, now what? a) ask scientist for tips b) I have journal of crazy archeologist c) It is about journey not destination. 
 Resolution: 
 Count success points acquired during expedition. If we get good we get artifacts. If we got very good we receive ancient lasergun which pimps our ship weapons. 
+
+### One in lifetime encounter
+Some random events happen only once, maybe it is opportunity, will you seize it or let it slip? 
+Space Whale - we encounter living spce whale cruising void and eating stardust. We get a text about majestic beast, and it general noninterest in galaxy events. But it poops void peppers. Sent the drones to collect some free spice. 
+Hermit on the edge of black hole - we can indulge or run away, if we indulge we will waste 3 monts due to time relativity, we encounter hermit, who tries to cross event horizont to enter alternative universe where he can reconnect with his ex girlfriend. He buys everything for 100c no questions. He can sell everything for 100c too. Dont exacly cares about credits anyway. But good chance to fill cargo with rare spice. Or even better we roll 5 spices. 
+Samartian lorry - we encounter fellow freighman who is dry on fuel after runaway from pirates we can 1) wait a month so he dies from hunger, and take his cargo 2) give him some fuel 3)give fuel but make him pay 4) squize him from cargo hard. 
+Holocube - we enter lost holliday station run by solar panels and ai. It still works and have operating holograms. It shows nice beach, with drinks with little umbrellas. It looks nice, and even air smells like salt breeze. Maybe should stay here? a) Yes. It is fine. GAME OVER b) Nah. This cargo will not freight itself. 
+Lost on the way - We are hit by meteor shower, and it did us dirty. Our ship need repairs and we force landed on smal outpost colony. Local mechanic could repair it but it will take time. Do we have time. a) We cant discuss we meteors - 1 month passes, we travel local woodland, and watch stars in the night, and meteor showers evening. b) Pay double (pay 300c to hurry up) c) Let the gun talk, and threaten to kill his family and his dog (well, that escalated quickly) but he does fast. 
+Friendly Pirate - friendly pirate suggest us to work as decoy in their next heist. We have options 1) Momma said to not talk with pirates 2) Good pirate is dead pirate (attack) 3) Sure. lets start our path of vilianity. If 3rd there is coin flip. A) MIssion Accomplished, we serve as decoy and pirate gutted some other freightman. We get 5 void peppers.B) it was a trap for a trapper. Local Police catch us. 
+What we gonna do : a) Little bribe solves problems b) anyway, i started blasting (requires big guns) c) Fuck! GAME OVER we got busted. 
+
+
+
