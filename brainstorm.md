@@ -1,9 +1,6 @@
 ### This is file for my brainstorm, or at breeze.
 Ideas that pop up one day, so write them down, maybe one day they will feel code. Like in 3 months or something. AI dont code it yet, you absolute madman. 
 
-### Fleet Supply Depo
-A special market on Terra which accepts all goods in unlimited quantity. But... pays low, like +5 over minimal price. So if galaxy ever got flooded with cinamone rolls we can sell some to fleet. 
-Army is well known for good managment of resources, so they will put all goods into good use. 
 
 ### Invest in Stonks
 On Planet Promende add Invest location. This allows to buy farmland on location. 
@@ -27,12 +24,8 @@ There is a card game black jack, or 21. So we can play a card game and bet money
 We bet money, and we play, if we win we get double. 
 Maybe put it into separete file, and even directory /data/ since it is module, we write once, test once, never see again. 
 
-### No more Fake News
-In game there is news feed "Pirates attacked Void Colony" but it actually dont happens and have no effect on game. 
-What if news on newsfeed ware real and with effect in game. 
-Sample: "Large Cinamone Orchand fires on Terra, it smells wonderful, but at what cost!? The next festival will be sand and expansive" Effect: -100 Cinamone stockpile on Terra, local main price +20
-"Scientist on Aggro destiled synthetic Cinamone powder. It has similar taste, but will it compete with real thing?" +100 cinamone on Aggros, -20 local price
-The effects should be mirrored, or less important. So we dont get random drain to oblivion. 
+### More random event
+During space voyage we could encounter rare events, one in the lifetime events. Like Encounter Space Whale. Hermit on the edge of event horziont. Friendly pirate. Lost freightmen. meteor Shower. 
 
 ### Galaxy Timeline
 There could be Galaxy Timeline, and chain of events, which happen on specific turns, and generete newsfeed, and change galaxy. 
