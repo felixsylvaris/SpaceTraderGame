@@ -117,7 +117,8 @@ advice_pools = {
 }
 
 # ── GALAXY BACKGROUND STORY ──────────────────────────────────
-# Revealed one entry per cantina rest, in order.
+# Reserved for future use. Not triggered in current version.
+# Will be revealed one entry per event when galaxy story system is built.
 
 galaxy_story = [
     "A broker mentions in passing: the Senate voted to dissolve the Spice Trade Commission last cycle.",
@@ -181,6 +182,101 @@ CONCERT_NO_SHOW = (
     "Your ticket has been refunded."
 )
 
+# ── RANDOM EVENTS — BLANK (flavour only, no effect) ──────────
+# Drawn 80% of the time (see parameters.RND_EVENT_SPLIT).
+# Add more strings freely — no code changes needed.
+
+event_rnd_blank = [
+    "Terran scientists claim Void Peppers are remains of ancient Space Whales. Should we protect an extinct species?",
+    "Corporation Pandora on Agrica claims to bioengineer local bugs to produce Void Peppers in small quantities. Side effect: the bugs are getting smarter. So far all specimens have escaped into the jungle.",
+    "A Space Whale was spotted near Zeta-9. Hasn't happened in thirty years.",
+    "The old Void Colony governor was arrested. The new one is friendlier to black-market deals.",
+    "The jump lanes near Terra are being taxed now. Change is coming.",
+    "The galaxy feels different lately. The old routes are shifting.",
+    "A broker mentions: the Senate voted to dissolve the Spice Trade Commission last cycle.",
+    "Rumors spread of a hidden cache of Mystery Crates on Agrica.",
+    "A poet in the cantina recites a ballad about the lost spice fleets of Dedl.",
+    "The stars seem brighter tonight. Maybe it's the Void Pepper.",
+    "A traveler claims to have seen a ghost ship near the edge of the system.",
+    "Famous card player Cheating Jack arrested in a Promenade Cantina — caught cheating at cards. Again.",
+    "JOIN TERRA FLEET. Travel the Galaxy. Encounter new aliens. Maybe kill them. Health plan includes cybernetic prosthetics. Sign up NOW!",
+    "Fleet Supply HQ requests citizens donate spice goods. Come to your military before your military comes to you.",
+    "Tired of nonsense news? Subscribe to Infobroker Premium on the Promenade. No fake news. Just value.",
+    "Another expedition lost in the jungle on Agrica, exploring ancient ruins. What a loss.",
+    "Experimental Hyperdrive Cruise Ship >>Hindenburg<< lost without trace on its first commercial flight. Oh the humanity!",
+    "Senate votes to limit use of AI in administrative decision-making. All artificial advisors suggest voting against it.",
+    "Eccentric Googolplexillionaire Melon Tusk unveils plan to trade Cinnamon Futures. 'Why move the spice around when you could earn money trading rights to maybe-existing cinnamon?' He is asking the real questions.",
+]
+
+# ── RANDOM EVENTS — IMPACT (flavour + game effect) ───────────
+# Drawn 20% of the time (see parameters.RND_EVENT_SPLIT).
+# Each entry: tag, text, effects list.
+# Effect tuple: (planet, good, stockpile_delta, price_delta)
+#   - stockpile_delta: added to current stockpile, clamped to [0, max]
+#   - price_delta: added to base_price, clamped to [min, max]
+#   - Use 0 for no change on either field.
+# Add new entries here — apply_random_event() in game.py handles execution.
+
+event_rnd_impact = [
+    {
+        "tag":  "evri001",
+        "text": "AGRICA DROUGHT — paprika yields expected to halve next season. Farmers stare at cracked earth.",
+        "effects": [
+            ("Agrica", "Paprika", -200, +20),
+        ],
+    },
+    {
+        "tag":  "evri002",
+        "text": "Pirates attacked Void Colony! Stockpiles ransacked in a coordinated overnight raid.",
+        "effects": [
+            ("Void Colony", "Void Pepper", -50,  +100),
+            ("Void Colony", "Clove",       -100, +50),
+        ],
+    },
+    {
+        "tag":  "evri003",
+        "text": "Void Pepper smugglers caught on Nexus! Confiscated goods flood the local market.",
+        "effects": [
+            ("Nexus", "Void Pepper", +50, -100),
+        ],
+    },
+    {
+        "tag":  "evri004",
+        "text": "Saffron harvest on Zeta-9 exceeds all expectations! Warehouses are overflowing.",
+        "effects": [
+            ("Zeta-9", "Saffron", +50, -50),
+        ],
+    },
+    {
+        "tag":  "evri005",
+        "text": "TERRA CINNAMON ORCHARD WILDFIRE — local farmers watch blazes consume the trees. It smells wonderful. But at what cost?",
+        "effects": [
+            ("Terra", "Cinnamon", -200, +30),
+        ],
+    },
+    {
+        "tag":  "evri006",
+        "text": "Agrica farmers learn to harvest a cinnamon substitute from local berries. But will it compete with the real thing?",
+        "effects": [
+            ("Agrica", "Cinnamon", +200, -30),
+        ],
+    },
+    {
+        "tag":  "evri007",
+        "text": "NEXUS: Popular pop star claims Saffron is an aphrodisiac. Demand soars. Shelves emptying by the hour.",
+        "effects": [
+            ("Nexus", "Saffron", -50, +50),
+        ],
+    },
+    {
+        "tag":  "evri008",
+        "text": "Zeta-9's biggest Turmeric importer declares bankruptcy. Who will fill the niche?",
+        "effects": [
+            ("Zeta-9", "Turmeric", -200, +30),
+        ],
+    },
+]
+
 # ── INFOBROKER TABLES ─────────────────────────────────────────
 # Data is pulled from parameters — no hardcoded duplication.
 
@@ -201,7 +297,6 @@ def _table(header_cols, rows, widths):
 
 def infobroker_goods_table():
     """Goods Directory: which planets carry each good, production/demand roles."""
-    # Build planet lists dynamically from parameters
     good_planets  = {good: [] for good in P.GOOD_DATA}
     good_prod     = {}
     good_demand   = {}
@@ -273,7 +368,8 @@ def random_advice():
     return pool, random.choice(advice_pools[pool])
 
 def random_galaxy_news(index):
-    """Return next galaxy story entry, or None if exhausted."""
+    """Return next galaxy story entry, or None if exhausted.
+    Reserved for future galaxy story system — not called in current version."""
     if index < len(galaxy_story):
         return galaxy_story[index]
     return None
