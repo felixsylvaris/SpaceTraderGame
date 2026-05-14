@@ -15,6 +15,7 @@ atmospheric_events = [
     "A traveler claims to have seen a ghost ship near the edge of the system."
 ]
 """
+
 Bu they do NOTHING. Time to change it. 
 We add parameter rnd_event_split=0.2
 We add the list 
