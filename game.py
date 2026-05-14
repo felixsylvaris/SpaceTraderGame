@@ -1,91 +1,20 @@
-Space Trader Game Text
-/
-Claude finished the response
-You said: Look at them files.
-
-Look at them files. read feature blout for new changes. Dont code yet. Just say if all clear. New featuree: # If you quit you cant get back
-Rekey 0 as universal go back key. If there is conflick we will look for some other keys. 
-make "q" literally quit game key.
-Since 0 back ->0 quite game, could be sad trader without the save. 
-Sometimes 9 key is go back, so make it 0
-# Randomize game start
-Keep starting price/stockpile table in parameters for edit. 
-But at game start (only once with new game) perform randomize price and stockpile action. 
-For each planet and each good:
-stockpile is  (random(25% stockpile, 75% stockpile)+parameter stockpile)/2 
-Price is (random(minimal price, 2x default price)+parameter price)/2
-With price and stockpile we need to do legality check, like stockpile cant be negative, or about max stockpile. Price needs to be in 30%,300% default price. 
-The idea is that we have random element then add starting parameter from the table. And then we take mean of that. So there will be randomness, but also default setup matters. 
-# Fleet Supply Depo
-On Terra Promenade new location dropped. Fleet Supply Depo keybind "s". In is only there, unique location. 
-It buys everything on fixed prices, has no stockpile, if it buys it disappears from game. 
-The prices are min price + buy spread(from vendors) +5c. So we can buy goods on lowest price possible in galaxy, ship it here and get some profit. 
-Cinamone is special, since it is produced on Terra so we only need to lorry it from farmland. Somone has to do it. So depo price 21 (max vendor buy is 20) 
-If galaxy ever floods in spice, we can dump it into fleet. 
-The fleeddepo price table should be an object in parameters. Maybe i will alter it later. 
-Cinnamon    21
-Turmeric    28
-Paprika    31
-Ginger    39
-Clove    42
-Vanilla    45
-Cardamom    48
-Allspice    56
-Saffron    65
-Nutmeg    62
-Void Pepper    170
-Only sell to depo. We cant buy from depo. 
-# Songs.json and songs.py
-This project is too small for us two. 
-Remove reference to songs.json and creation, and all trace for it, and check, and try. 
-songs.py remain, and is refernced and is place where song is load.
-14:16
-Claude responded: All clear.
-
-All clear. Here's my read of the four features:
-
-1. Navigation rekeying (0 = back, q = quit)
-
-Currently 0 quits from the main spaceport loop, and 9 is used as back in several submenus (cantina, infobroker, engineering bay, promenade). Plan: remap all 9 → 0 for back, and wire q (string input, not int) as the quit key at the main loop. The main loop currently does int(raw) which would just reject q with "Enter a number" — so we handle q before the int cast. The "0 back → 0 quit game" note is basically: from the spaceport, 0 still quits, but now that's consistent with everywhere else where 0 means "leave this menu." Makes sense, no conflict spotted.
-
-2. Randomized game start
-
-Only fires on new game (not on load). For each planet+good: stockpile = mean of (random(25%max, 75%max), parameter_stockpile), clamped to [0, max]. Price = mean of (random(min_price, 2×default_price), parameter_price), clamped to [30% default, 300% default] and also within absolute [min, max] from GOOD_DATA. init_planets() and init_stockpiles() are the right spots to extend. Clean.
-
-3. Fleet Supply Depot
-
-Terra-only, Promenade, keybind s. Sell-only, fixed prices from a new FLEET_DEPOT_PRICES dict in parameters. No stockpile logic — goods sold here just vanish. Prices are notably low (floor + spread + 5cr) so it's a dumping valve, not a profit route, except Cinnamon which has a slight edge due to local production. No buy side. Straightforward new visit_fleet_depot() function.
-
-4. songs.json → songs.py only
-
-Currently game.py opens songs.json at runtime in visit_concert(), with try/except for missing file. Plan: remove all songs.json file I/O, instead import SONGS list directly from songs.py and pick randomly from it. Remove any file creation, json.load, and the SONGS_FILE constant from parameters. CONCERT_NO_SHOW fallback stays for empty list edge case. Clean removal.
-
-No ambiguities, no conflicts. Ready to code when you say go.
-You said: code code code
-
-code code code
-14:18
-Claude responded: Working from the documents in context.
-Ran 2 commands
-
-Working from the documents in context. Let me write all four changes now.
-Created 2 files
-Done
-You are out of free messages until 7:10 PM
-Get more
-
-
-Claude is AI and can make mistakes. Please double-check responses.
-Game · PY
 """
 =============================================================
-  SPICE SPACE TRADER — game.py  v12
+  SPICE SPACE TRADER — game.py  v13
 =============================================================
   Run: python game.py
   Files: game.py / parameters.py / library.py / songs.py
 =============================================================
   Changelog
 =============================================================
+v13
+  + Galaxy Random Events system
+    Two pools: blank (80%, flavour only) and impact (20%, game effect)
+    Fires on planet arrival and cantina rest (both = 1 month passing)
+    Impact events adjust stockpiles and prices with safety clamps
+    Split ratio controlled by parameters.RND_EVENT_SPLIT
+    Galaxy story system silenced (reserved for future)
+
 v12
   + Navigation rekeyed: 0 = universal back/cancel, q = quit game
     All submenus (cantina, infobroker, engineering bay, promenade)
@@ -98,13 +27,13 @@ v12
     Price table defined in parameters.FLEET_DEPOT_PRICES
   + songs.py replaces songs.json — SONGS list imported directly
     Removed all file I/O, json loading, and SONGS_FILE references
- 
+
 v11
   + Stockpiles: every planet/good has a stockpile
   + Production/Consumption/Void Pepper special
   + Local Market on every Promenade
   + Save/load updated
- 
+
 v10  4-file split; UPGRADE_EFFECTS in game.py; UPGRADES_DATA in parameters
 v9   Promenade; spread; GOOD_DATA bounds; news feed; songs.json
 v8.1 Clove 40 on Void Colony; Allspice festival high; Void Torpedo +2
@@ -114,20 +43,20 @@ v7   requests, events, fuel/cargo split, fixes, save JSON
 v6   Original
 =============================================================
 """
- 
+
 import random, json, math, os, copy
 import parameters as P
 import library    as L
 from songs import SONGS
- 
+
 try:
     import requests as _requests
     REQUESTS_AVAILABLE = True
 except ImportError:
     REQUESTS_AVAILABLE = False
- 
+
 # ─── UPGRADE EFFECTS ──────────────────────────────────────────────────────────
- 
+
 UPGRADE_EFFECTS = {
     "kinetic_launcher":  lambda s: s.update({"weapons":        s["weapons"]  + 1}),
     "mining_laser":      lambda s: s.update({"weapons":        s["weapons"]  + 1}),
@@ -143,12 +72,12 @@ UPGRADE_EFFECTS = {
     "long_range_radar":  lambda s: s.update({"radar":          True}),
     "booster":           lambda s: s.update({"booster":        True}),
 }
- 
+
 # ─── CALENDAR ─────────────────────────────────────────────────────────────────
- 
+
 def month_name(idx):  return P.MONTH_NAMES[idx % P.MONTHS_PER_YEAR]
 def date_str(state):  return f"{month_name(state['month_index'])} {state['year']}"
- 
+
 def advance_time(state, months=1):
     for _ in range(months):
         state["turn"]        += 1
@@ -161,41 +90,41 @@ def advance_time(state, months=1):
         _apply_stockpile_pressure(state)
         _apply_inflation(state)
         _check_festival_drop(state)
- 
+
 def current_harvest_good(month_index):
     for good, entry in P.GOOD_SEASONS.items():
         if entry and entry[0] == month_index:
             return good
     return None
- 
+
 # ─── PRICE HELPERS ────────────────────────────────────────────────────────────
- 
+
 def _spread(good):
     e = P.GOOD_DATA.get(good); return P.SPREAD_AMOUNT[e[0]] if e else 5
- 
+
 def _price_min(good):
     e = P.GOOD_DATA.get(good); return e[1] if e else 1
- 
+
 def _price_max(good):
     e = P.GOOD_DATA.get(good); return e[3] if e else 9999
- 
+
 def _good_cat(good):
     e = P.GOOD_DATA.get(good); return e[0] if e else "low"
- 
+
 def _clamp_base(good, price):
     return max(_price_min(good), min(_price_max(good), price))
- 
+
 def _season_offset(good, month):
     e = P.GOOD_SEASONS.get(good)
     if e is None: return 0
     hm, pk = e
     return P.SEASON_PATTERNS[pk][(month - hm) % P.MONTHS_PER_YEAR]
- 
+
 def _festival_boost(planet_name, month):
     if planet_name not in P.PLANET_FESTIVALS: return None, 0
     good, fm, _n, bt = P.PLANET_FESTIVALS[planet_name]
     return (good, P.FESTIVAL_BOOST[bt]) if month == fm else (None, 0)
- 
+
 def effective_mean(state, planet, good):
     base    = state["planets"][planet]["base_prices"].get(good, 1)
     season  = _season_offset(good, state["month_index"])
@@ -204,36 +133,36 @@ def effective_mean(state, planet, good):
     sp      = _spread(good)
     raw     = base + season + fest
     return max(_price_min(good) - sp, min(_price_max(good) + sp, raw))
- 
+
 def buy_price(state, planet, good):
     return max(1, effective_mean(state, planet, good) + _spread(good))
- 
+
 def sell_price(state, planet, good):
     return max(1, effective_mean(state, planet, good) - _spread(good))
- 
+
 # ─── STOCKPILE HELPERS ────────────────────────────────────────────────────────
- 
+
 def _stk_max(good):
     return P.STOCKPILE_MAX.get(_good_cat(good), 100)
- 
+
 def _stk_start(planet, good):
     ov = P.STOCKPILE_OVERRIDES.get((planet, good))
     return ov if ov is not None else P.STOCKPILE_START.get(_good_cat(good), 50)
- 
+
 def get_stk(state, planet, good):
     return state["stockpiles"].get(planet, {}).get(good, 0)
- 
+
 def set_stk(state, planet, good, amount):
     if planet not in state["stockpiles"]:
         state["stockpiles"][planet] = {}
     state["stockpiles"][planet][good] = max(0, min(_stk_max(good), int(amount)))
- 
+
 def _stk_ratio(state, planet, good):
     mx = _stk_max(good)
     return get_stk(state, planet, good) / mx if mx else 0.0
- 
+
 # ─── STOCKPILE PRESSURE ───────────────────────────────────────────────────────
- 
+
 def _apply_stockpile_pressure(state):
     for pname, planet in state["planets"].items():
         for good in planet["base_prices"]:
@@ -244,9 +173,9 @@ def _apply_stockpile_pressure(state):
                 planet["base_prices"][good] = _clamp_base(good, cur + pressure)
             elif ratio > P.STOCKPILE_HIGH_THRESHOLD:
                 planet["base_prices"][good] = _clamp_base(good, cur - pressure)
- 
+
 # ─── PRODUCTION ───────────────────────────────────────────────────────────────
- 
+
 def _run_production(state):
     m = state["month_index"]
     for good, entry in P.GOOD_SEASONS.items():
@@ -264,7 +193,7 @@ def _run_production(state):
             if cur == 0:
                 amt = int(amt * P.PRODUCTION_ZERO_MULT)
             set_stk(state, pname, good, cur + amt)
- 
+
     # Void Pepper special
     if m == P.VOID_PEPPER_PRODUCTION_MONTH:
         cur = get_stk(state, "Void Colony", "Void Pepper")
@@ -272,9 +201,9 @@ def _run_production(state):
         if cur == 0:
             amt = int(amt * P.PRODUCTION_ZERO_MULT)
         set_stk(state, "Void Colony", "Void Pepper", cur + amt)
- 
+
 # ─── CONSUMPTION ──────────────────────────────────────────────────────────────
- 
+
 def _run_consumption(state):
     for pname, planet in state["planets"].items():
         for good in list(planet["base_prices"].keys()):
@@ -287,13 +216,13 @@ def _run_consumption(state):
             if ratio >= P.STOCKPILE_HIGH_THRESHOLD:
                 amt = int(amt * P.CONSUMPTION_OVERFLOW_MULT)
             set_stk(state, pname, good, max(0, get_stk(state, pname, good) - amt))
- 
+
     for pname, consume in P.VOID_PEPPER_CONSUMPTION.items():
         set_stk(state, pname, "Void Pepper",
                 max(0, get_stk(state, pname, "Void Pepper") - consume))
- 
+
 # ─── INFLATION & FESTIVAL DROP ────────────────────────────────────────────────
- 
+
 def _apply_inflation(state):
     for planet in state["planets"].values():
         for good in list(planet["base_prices"].keys()):
@@ -303,7 +232,7 @@ def _apply_inflation(state):
                 delta = -random.randint(1, P.INFLATION_DOWN_MAX)
             planet["base_prices"][good] = _clamp_base(
                 good, planet["base_prices"][good] + delta)
- 
+
 def _check_festival_drop(state):
     m = state["month_index"]
     for pname, (good, fm, _n, bt) in P.PLANET_FESTIVALS.items():
@@ -316,9 +245,35 @@ def _check_festival_drop(state):
                 if good in planet["base_prices"]:
                     planet["base_prices"][good] = _clamp_base(
                         good, planet["base_prices"][good] - P.FESTIVAL_BOOST[bt])
- 
+
+# ─── RANDOM EVENTS ────────────────────────────────────────────────────────────
+
+def _fire_random_event(state):
+    """Roll and apply one random event. Called on travel arrival and cantina rest."""
+    if random.random() < P.RND_EVENT_SPLIT:
+        # Impact event
+        evt = random.choice(L.event_rnd_impact)
+        print(f"\n  🌐 BREAKING: {evt['text']}")
+        for planet, good, stk_delta, price_delta in evt["effects"]:
+            # Guard: planet and good must exist in state
+            if planet not in state["planets"]: continue
+            if good not in state["planets"][planet]["base_prices"]: continue
+            # Apply stockpile delta — set_stk already clamps to [0, max]
+            if stk_delta != 0:
+                cur_stk = get_stk(state, planet, good)
+                set_stk(state, planet, good, cur_stk + stk_delta)
+            # Apply price delta — _clamp_base keeps within [min_price, max_price]
+            if price_delta != 0:
+                cur_price = state["planets"][planet]["base_prices"][good]
+                state["planets"][planet]["base_prices"][good] = _clamp_base(
+                    good, cur_price + price_delta)
+    else:
+        # Blank event — flavour only
+        evt_text = random.choice(L.event_rnd_blank)
+        print(f"\n  📰 {evt_text}")
+
 # ─── LOCAL MARKET ─────────────────────────────────────────────────────────────
- 
+
 def _roll_local_market(state, planet):
     pool  = [g for g in P.GOOD_DATA if g not in P.LOCAL_MARKET_EXCLUDE]
     slots = []
@@ -332,13 +287,13 @@ def _roll_local_market(state, planet):
         slots.append({"good": good, "price": price,
                       "quantity": P.LOCAL_MARKET_QTY[cat], "sold": False})
     return slots
- 
+
 def _market_news_line(slots):
     return ", ".join(f"{s['good']}: {s['price']}cr ×{s['quantity']}"
                      for s in slots if not s["sold"])
- 
+
 # ─── REMOTE SEED ──────────────────────────────────────────────────────────────
- 
+
 def _remote_seed():
     if not REQUESTS_AVAILABLE: return random.randint(0, 99)
     try:
@@ -348,9 +303,9 @@ def _remote_seed():
         r.raise_for_status(); return r.json()[0]
     except Exception:
         return random.randint(0, 99)
- 
+
 # ─── GENERAL HELPERS ──────────────────────────────────────────────────────────
- 
+
 def _get_int(prompt, lo=None, hi=None):
     while True:
         raw = input(prompt).strip().lower()
@@ -363,11 +318,11 @@ def _get_int(prompt, lo=None, hi=None):
             return v
         except ValueError:
             print("  Enter a number (or q to quit).")
- 
+
 def _col(t, w):         return str(t).ljust(w)
 def _cargo_used(ship):  return sum(ship["cargo"].values())
 def _cargo_free(ship):  return ship["max_cargo"] - _cargo_used(ship)
- 
+
 def _fuel_cost(origin, dest):
     i = P.PLANET_NAMES.index(origin)
     j = P.PLANET_NAMES.index(dest)
@@ -375,43 +330,43 @@ def _fuel_cost(origin, dest):
                min(P.TRAVEL_MAX,
                    abs(i-j) * P.TRAVEL_COST_PER_HOP
                    + random.randint(-P.TRAVEL_JITTER, P.TRAVEL_JITTER)))
- 
+
 # ─── NEWS FEED ────────────────────────────────────────────────────────────────
- 
+
 def print_news(ship, state):
     loc, m = ship["location"], state["month_index"]
     lines  = []
- 
+
     if ship.get("passenger_slot"):
         pw = state.get("passenger_waiting")
         if pw:
             lines.append(L.NEWS_TRAVELER.format(
                 shortname=pw["shortname"], destination=pw["destination"]))
- 
+
     if loc in P.PLANET_FESTIVALS:
         good, fm, fname, _ = P.PLANET_FESTIVALS[loc]
         if m == fm:
             lines.append(L.NEWS_FESTIVAL.format(
                 festival_name=fname, planet=loc, month_name=month_name(m)))
- 
+
     hg = current_harvest_good(m)
     if hg:
         lines.append(L.NEWS_HARVEST.format(
             harvest_good=hg, month_name=month_name(m)))
- 
+
     slots  = state.get("local_market", {}).get(loc, [])
     active = [s for s in slots if not s["sold"]]
     if active:
         lines.append(L.NEWS_MARKET.format(deals=_market_news_line(active)))
- 
+
     if lines:
         print("\n" + "─"*50)
         for ln in lines: print(ln)
         print("─"*50)
     state["news_printed"] = True
- 
+
 # ─── DISPLAY ──────────────────────────────────────────────────────────────────
- 
+
 def show_status(ship, state):
     print("\n" + "═"*52)
     print(f"  STATUS  —  {date_str(state)}  (turn {state['turn']})")
@@ -437,16 +392,16 @@ def show_status(ship, state):
     if ship["location"] == P.FARM_PLANET and ship.get("farm_bought"):
         print(f"  🌿 You own a cinnamon farm on {P.FARM_PLANET}.")
     print("═"*52)
- 
+
 def show_market(ship, state):
     loc    = ship["location"]
     planet = state["planets"][loc]
     m      = state["month_index"]
- 
+
     fg, fb = _festival_boost(loc, m)
     if fg:
         print(f"\n  🎊 {P.PLANET_FESTIVALS[loc][2].upper()} this month! {fg} +{fb}cr")
- 
+
     print(f"\n── MARKET: {loc} ──────────────────────────────────────")
     print(f"  {'Good':<18} {'Sell':>6} {'Buy':>6} {'Stock':>6}  {'Role'}")
     print(f"  {'─'*18} {'─'*6} {'─'*6} {'─'*6}  {'─'*12}")
@@ -461,9 +416,9 @@ def show_market(ship, state):
     print("  [1] Buy   [2] Sell   [3] Travel")
     print("  [4] Status   [5] Price Check   [6] Promenade")
     print("  [8] Engineering Bay   [9] Save   [q] Quit")
- 
+
 # ─── TRADE ────────────────────────────────────────────────────────────────────
- 
+
 def do_buy(ship, state):
     loc    = ship["location"]
     planet = state["planets"][loc]
@@ -492,7 +447,7 @@ def do_buy(ship, state):
     ship["cargo"][good] = ship["cargo"].get(good, 0) + amt
     set_stk(state, loc, good, stock - amt)
     print(f"✓ Bought {amt}× {good} for {amt*bp:,} cr.  Stock now: {get_stk(state, loc, good)}")
- 
+
 def do_sell(ship, state):
     if not ship["cargo"]:
         print("Cargo hold is empty!"); return
@@ -524,9 +479,9 @@ def do_sell(ship, state):
     if ship["cargo"][good] <= 0: del ship["cargo"][good]
     set_stk(state, loc, good, stock + amt)
     print(f"✓ Sold {amt}× {good} for {gross:,} cr.  Tax: {tax}.  Net: {net:,} cr.")
- 
+
 # ─── TRAVEL ───────────────────────────────────────────────────────────────────
- 
+
 def do_travel(ship, state):
     if ship["fuel"] < P.MIN_FUEL_TO_DEPART:
         print(f"Need ≥{P.MIN_FUEL_TO_DEPART} fuel. Refuel in Engineering Bay."); return
@@ -542,23 +497,23 @@ def do_travel(ship, state):
     fc   = _fuel_cost(ship["location"], dest)
     if ship["fuel"] - fc < P.MIN_FUEL_TO_DEPART:
         print(f"Not enough fuel. Need {fc}+{P.MIN_FUEL_TO_DEPART} reserve."); return
- 
+
     random.seed(_remote_seed())
     ship["fuel"]         -= fc
     ship["location"]      = dest
     state["news_printed"] = False
     advance_time(state)
     print(f"\n🚀 Jumped to {dest}. Fuel used: {fc}. Date: {date_str(state)}")
- 
+
     # Roll fresh local market for destination
     state["local_market"][dest] = _roll_local_market(state, dest)
- 
+
     # Small arrival price jitter
     for good in state["planets"][dest]["base_prices"]:
         state["planets"][dest]["base_prices"][good] = _clamp_base(
             good, state["planets"][dest]["base_prices"][good] + random.randint(-3, 3))
     random.seed()
- 
+
     pc = P.PIRATE_RADAR_CHANCE if ship.get("radar") else P.PIRATE_BASE_CHANCE
     if random.random() < pc:
         alive = _pirate_encounter(ship, state)
@@ -569,10 +524,11 @@ def do_travel(ship, state):
             cum += prob
             if roll < cum:
                 _travel_event(key, ship, state, dest); break
- 
+
     _deliver_passenger(ship, state)
     _spawn_passenger(ship, state)
- 
+    _fire_random_event(state)
+
 def _travel_event(key, ship, state, dest):
     if key == "festival":
         for good in state["planets"][dest]["base_prices"]:
@@ -590,9 +546,9 @@ def _travel_event(key, ship, state, dest):
             print(f"📦 Drifting pod attached. +{amt} Mystery Crate.")
         else:
             print("📦 Drifting pod — no room. It drifts on.")
- 
+
 # ─── PIRATES ──────────────────────────────────────────────────────────────────
- 
+
 def _pirate_encounter(ship, state):
     state["piratangst"] += 1
     angst = state["piratangst"]
@@ -605,17 +561,17 @@ def _pirate_encounter(ship, state):
     print(f"  [3] Bribe ({state['piratbribe']} cr)    [4] Drop Cargo")
     print(f"  [5] Bluff (auto if cargo≤10)   [6] Surrender (GAME OVER)")
     return _pr(ship, state, _get_int("Choose: ", 1, 6), excl=None)
- 
+
 def _pr(ship, state, choice, excl):
     if choice == "QUIT":
         # Can't quit mid-pirate — force a choice
         print("  You can't run from pirates like that. Pick an option.")
         return _pirate_encounter(ship, state)
- 
+
     angst = state["piratangst"]
     fm    = P.PIRATE_FLEE_MULT_BOOST if ship.get("booster") else P.PIRATE_FLEE_MULT
     fc    = max(0, min(fm * angst, ship["fuel"] - P.MIN_FUEL_TO_DEPART))
- 
+
     if choice == 1:
         pp = max(1, angst // 20)
         state["piratangst"] += 2
@@ -669,7 +625,7 @@ def _pr(ship, state, choice, excl):
             print("\n  ─── GAME OVER ───"); return False
         print("  You reconsider."); return _pirate_encounter(ship, state)
     return True
- 
+
 def _pr_retry(ship, state, excl):
     angst = state["piratangst"]
     fm    = P.PIRATE_FLEE_MULT_BOOST if ship.get("booster") else P.PIRATE_FLEE_MULT
@@ -688,16 +644,16 @@ def _pr_retry(ship, state, excl):
         raw = input("Choose: ").strip()
         if raw in valid: return _pr(ship, state, int(raw), excl=excl)
         print(f"  Choose from: {', '.join(valid)}")
- 
+
 def _drop_half(ship):
     for g in list(ship["cargo"].keys()):
         d = max(1, math.ceil(ship["cargo"][g] / 2))
         ship["cargo"][g] -= d
         if ship["cargo"][g] <= 0: del ship["cargo"][g]
         print(f"  Dropped {d}× {g}.")
- 
+
 # ─── PASSENGERS ───────────────────────────────────────────────────────────────
- 
+
 def _spawn_passenger(ship, state):
     if not ship.get("passenger_slot") or state.get("passenger_waiting"): return
     if random.random() < P.PASSENGER_SPAWN_CHANCE:
@@ -705,7 +661,7 @@ def _spawn_passenger(ship, state):
         p["destination"] = random.choice(
             [pl for pl in P.PLANET_NAMES if pl != ship["location"]])
         state["passenger_waiting"] = p
- 
+
 def _deliver_passenger(ship, state):
     p = ship.get("passenger")
     if p and p["destination"] == ship["location"]:
@@ -715,9 +671,9 @@ def _deliver_passenger(ship, state):
         print(f"  +{P.PASSENGER_DELIVERY_PAY} credits received.")
         print("─"*50)
         ship["passenger"] = None
- 
+
 # ─── PRICE CHECK ──────────────────────────────────────────────────────────────
- 
+
 def do_price_check(ship, state):
     if not ship.get("broker_license"):
         print("\n  Need Galactic Broker License. Buy at Nexus for 1000 cr."); return
@@ -740,9 +696,9 @@ def do_price_check(ship, state):
                   f"{_col(get_stk(state,pn,good),W[5])} "
                   f"{_col(role,W[6])}")
         print(sep)
- 
+
 # ─── LOCAL MARKET ─────────────────────────────────────────────────────────────
- 
+
 def visit_local_market(ship, state):
     loc    = ship["location"]
     slots  = state["local_market"].get(loc, [])
@@ -775,9 +731,9 @@ def visit_local_market(ship, state):
         ship["cargo"][good] = ship["cargo"].get(good, 0) + amt
         print(f"✓ Bought {amt}× {good} for {amt*bp:,} cr.")
         print("  Trader pockets credits and vanishes into the crowd.")
- 
+
 # ─── FLEET SUPPLY DEPOT ───────────────────────────────────────────────────────
- 
+
 def visit_fleet_depot(ship, state):
     """Terra-only. Sell-only at fixed prices. Goods vanish — no stockpile."""
     cargo_items = [(g, q) for g, q in ship["cargo"].items()
@@ -812,9 +768,9 @@ def visit_fleet_depot(ship, state):
         if ship["cargo"][good] <= 0: del ship["cargo"][good]
         print(f"✓ Sold {amt}× {good} to Fleet for {gross:,} cr.  Tax: {tax}.  Net: {net:,} cr.")
         print("  A quartermaster stamps your manifest and the crates disappear.")
- 
+
 # ─── FARM ─────────────────────────────────────────────────────────────────────
- 
+
 def visit_farm(ship, state):
     while True:
         print("\n" + "="*50)
@@ -824,9 +780,9 @@ def visit_farm(ship, state):
         ch = input("Choose: ").strip().lower()
         if ch == "0" or ch == "q":
             print("You leave the farm, ready for the galaxy again."); break
- 
+
 # ─── CANTINA ──────────────────────────────────────────────────────────────────
- 
+
 def visit_cantina(ship, state):
     cantina = L.cantinas[ship["location"]]
     while True:
@@ -837,7 +793,7 @@ def visit_cantina(ship, state):
         if hq: print(f"  [3] Traveler — {pw['shortname']+' → '+pw['destination'] if pw else '(none)'}")
         print("  [4] Rest (1 month)   [0] Back")
         ch = input("Choose: ").strip().lower()
- 
+
         if ch == "q": return "QUIT"
         elif ch == "1":
             drink = cantina["drink"]
@@ -867,12 +823,7 @@ def visit_cantina(ship, state):
         elif ch == "4":
             print("\n" + "─"*50)
             print("  A month blurs by in the cantina.")
-            news = L.random_galaxy_news(state["galaxy_story_index"])
-            if news:
-                print(f"\n  [GALAXY NEWS]: {news}")
-                state["galaxy_story_index"] += 1
-            else:
-                print("  The galaxy turns, quietly.")
+            _fire_random_event(state)
             print("─"*50)
             input("  [Enter...]")
             advance_time(state)
@@ -882,9 +833,9 @@ def visit_cantina(ship, state):
             break
         else:
             print("  Invalid choice.")
- 
+
 # ─── INFOBROKER ───────────────────────────────────────────────────────────────
- 
+
 def visit_infobroker(ship, state):
     while True:
         print("\n── INFOBROKER ───────────────────────────────────────")
@@ -896,21 +847,21 @@ def visit_infobroker(ship, state):
         elif ch == "3": L.infobroker_festival_table()
         elif ch == "0": break
         else: print("  Invalid.")
- 
+
 # ─── CONCERT ──────────────────────────────────────────────────────────────────
- 
+
 def visit_concert(ship, state):
     t = P.CONCERT_TICKET
     if ship["credits"] < t:
         print(f"\n  Ticket: {t} cr. Too broke right now."); return
     ship["credits"] -= t
     print(f"\n  You pay {t} cr and take your seat...")
- 
+
     if not SONGS:
         ship["credits"] += t
         print("\n" + L.CONCERT_NO_SHOW)
         return
- 
+
     song = random.choice(SONGS)
     print("\n" + "★"*52)
     print(f"  NOW PLAYING: {song.get('fullname', song.get('shortname', '?'))}")
@@ -918,9 +869,9 @@ def visit_concert(ship, state):
     print(song.get("text", "(no lyrics)"))
     if song.get("art"): print(); print(song["art"])
     print("\n" + "★"*52)
- 
+
 # ─── PROMENADE ────────────────────────────────────────────────────────────────
- 
+
 def visit_promenade(ship, state):
     loc = ship["location"]
     while True:
@@ -933,7 +884,7 @@ def visit_promenade(ship, state):
             print(f"  [s] Fleet Supply Depot")
         print("  [0] Back to Spaceport")
         ch = input("Choose: ").strip().lower()
- 
+
         if ch == "q": return "QUIT"
         elif ch == "1":
             r = visit_cantina(ship, state)
@@ -962,9 +913,9 @@ def visit_promenade(ship, state):
             if r == "QUIT": return "QUIT"
         elif ch == "0": break
         else: print("  Invalid.")
- 
+
 # ─── ENGINEERING BAY ──────────────────────────────────────────────────────────
- 
+
 def visit_engineering_bay(ship, state):
     while True:
         print("\n── ENGINEERING BAY ──────────────────────────────────")
@@ -977,7 +928,7 @@ def visit_engineering_bay(ship, state):
         elif ch == "3": _upgrades_menu(ship, state)
         elif ch == "0": break
         else: print("  Invalid.")
- 
+
 def _fuel_up(ship):
     space = ship["max_fuel"] - ship["fuel"]
     if space <= 0: print("  Tank full."); return
@@ -996,7 +947,7 @@ def _fuel_up(ship):
     ship["credits"] -= cost
     ship["fuel"] = min(ship["max_fuel"], ship["fuel"] + a)
     print(f"✓ +{a} fuel. Tank: {ship['fuel']}/{ship['max_fuel']}")
- 
+
 def _drain_fuel(ship):
     dr = ship["fuel"] - P.MIN_FUEL_TO_DEPART
     if dr <= 0: print(f"  Must keep ≥{P.MIN_FUEL_TO_DEPART} fuel."); return
@@ -1010,7 +961,7 @@ def _drain_fuel(ship):
     a = opts[c-1]
     ship["fuel"] -= a; ship["credits"] += a * P.FUEL_PRICE
     print(f"✓ Drained {a}. Tank: {ship['fuel']}/{ship['max_fuel']}. +{a*P.FUEL_PRICE:,} cr.")
- 
+
 def _upgrades_menu(ship, state):
     loc = ship["location"]
     avail = [(uid, P.UPGRADES_DATA[uid]) for uid in P.UPGRADES_DATA
@@ -1032,9 +983,9 @@ def _upgrades_menu(ship, state):
     UPGRADE_EFFECTS[uid](ship)
     ship["upgrades_bought"].append(uid)
     print(f"✓ {u['name']} installed.")
- 
+
 # ─── SAVE / LOAD ──────────────────────────────────────────────────────────────
- 
+
 def save_game(ship, state):
     data = {
         "ship":                   dict(ship),
@@ -1056,7 +1007,7 @@ def save_game(ship, state):
         print(f"💾 Saved to {P.SAVE_FILE}")
     except OSError as e:
         print(f"⚠️  Save failed: {e}")
- 
+
 def load_game(planets, state):
     if not os.path.exists(P.SAVE_FILE): return None
     try:
@@ -1078,9 +1029,9 @@ def load_game(planets, state):
         return data["ship"]
     except (OSError, json.JSONDecodeError, KeyError) as e:
         print(f"⚠️  Load failed: {e}"); return None
- 
+
 # ─── INIT ─────────────────────────────────────────────────────────────────────
- 
+
 def _randomise_start_price(good, param_price):
     """Return a randomised starting price, averaged with the parameter value."""
     mn   = _price_min(good)
@@ -1092,14 +1043,14 @@ def _randomise_start_price(good, param_price):
     lo   = max(mn, dfl * P.RAND_PRICE_MIN_FRAC)
     hi   = min(mx, dfl * P.RAND_PRICE_MAX_FRAC)
     return int(max(lo, min(hi, raw)))
- 
+
 def _randomise_start_stk(good, param_stk):
     """Return a randomised starting stockpile, averaged with the parameter value."""
     mx       = _stk_max(good)
     rand_val = random.uniform(mx * P.RAND_STK_LOW_FRAC, mx * P.RAND_STK_HIGH_FRAC)
     raw      = (rand_val + param_stk) / 2
     return int(max(0, min(mx, raw)))
- 
+
 def init_planets(randomise=False):
     planets = {}
     for pname, pdata in P.planets_template.items():
@@ -1111,7 +1062,7 @@ def init_planets(randomise=False):
                 new_prices[good] = _clamp_base(good, price + random.randint(-10, 10))
         planets[pname] = {**pdata, "base_prices": new_prices}
     return planets
- 
+
 def init_stockpiles(planets, randomise=False):
     stk = {}
     for pname, planet in planets.items():
@@ -1123,10 +1074,10 @@ def init_stockpiles(planets, randomise=False):
             else:
                 stk[pname][good] = param_stk
     return stk
- 
+
 def new_ship():
     return copy.deepcopy(P.SHIP_START)
- 
+
 def new_state(planets, randomise=False):
     return {
         "planets":                planets,
@@ -1142,15 +1093,15 @@ def new_state(planets, randomise=False):
         "festival_drops_applied": set(),
         "news_printed":           False,
     }
- 
+
 # ─── MAIN ─────────────────────────────────────────────────────────────────────
- 
+
 def main():
     print("═"*55)
     print("  SPICE SPACE TRADER  v12")
     print("  Trade spices. Dodge pirates. Maybe buy a farm.")
     print("═"*55)
- 
+
     if os.path.exists(P.SAVE_FILE):
         if input("\nSave file found. Load it? [y/n]: ").strip().lower() == "y":
             # Load: init planets normally (no randomise), then overwrite from save
@@ -1163,44 +1114,44 @@ def main():
             is_new_game = True
     else:
         is_new_game = True
- 
+
     if is_new_game:
         planets = init_planets(randomise=True)
         state   = new_state(planets, randomise=True)
         ship    = new_ship()
- 
+
     # Roll local market for starting planet
     loc = ship["location"]
     if loc not in state["local_market"]:
         state["local_market"][loc] = _roll_local_market(state, loc)
- 
+
     while True:
         if not state.get("news_printed"):
             print_news(ship, state)
- 
+
         show_status(ship, state)
         show_market(ship, state)
- 
+
         raw = input("\nChoose action: ").strip().lower()
- 
+
         # Cheat code — handle before anything else
         if raw.startswith("!credits "):
             try: ship["credits"] += int(raw.split()[1])
             except (ValueError, IndexError): pass
             continue
- 
+
         # Quit key
         if raw == "q":
             print(f"\nFinal credits: {ship['credits']:,}  |  {date_str(state)}")
             if ship.get("farm_bought"):
                 print("You retired to your cinnamon farm. You won. 🌿")
             break
- 
+
         try:
             action = int(raw)
         except ValueError:
             print("  Enter a number, or q to quit."); continue
- 
+
         if action == 0:
             print("  Nothing to go back to here. Use [q] to quit.")
         elif action == 1:
@@ -1223,14 +1174,12 @@ def main():
             if r == "QUIT": break
         elif action == 9: save_game(ship, state)
         else: print("  Invalid action.")
- 
+
     # Offer save on quit
     print()
     if input("Save before leaving? [y/n]: ").strip().lower() == "y":
         save_game(ship, state)
     print("Fair winds, trader.")
- 
+
 if __name__ == "__main__":
     main()
- 
-
