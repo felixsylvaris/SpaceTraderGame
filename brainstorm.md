@@ -62,6 +62,19 @@ Independent trader cant negative stockpile, or overstockpile.
 Of course trader takes from low price planet, and moves to high price planet. 
 Trader will take max possible from low price, even if at end journey there is no space. 
 
+# StartUp Production
+Each month we produce hast map of all goods and sum of stockpile in galaxy for each good. Remove void peppers from the list.  From this we get:
+good_min_stock  good name
+good_max_stock  good name
+It recounts its value each month. 
+While good_min_stock or  good_max_stock not empty:
+we scan plannets in order Nexus, Terra, Zetta9, Agri, Void Colony and check:
+Is there any of them good?  
+If there is min stock good add +50 and set good_min_stock as none. Overflow protection. 
+If there is max stock good drop -50 and set good_min_stock as none. Negative protection. 
+Te purpose is that we balance galaxy if there was too much or too listle of goods. 
+
+
 
 
 
