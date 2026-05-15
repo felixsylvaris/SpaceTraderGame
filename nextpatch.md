@@ -48,19 +48,19 @@ If price is 80% or above, price change DOWN by  5/10/20 a month.
 
 
 ## Production
-Medicine +2 Only Nexus
-Weapons +2 Only Terra
-Soybeans +8 Only Agri
-Minerals +8 Only Void Colony
-Alloys +4 Only Zeta 9
-Robots +4 Only Terra
+Medicine +2 Only Nexus  
+Weapons +2 Only Terra  
+Soybeans +8 Only Agri  
+Minerals +8 Only Void Colony  
+Alloys +4 Only Zeta 9  
+Robots +4 Only  Terra  
 
-If minerals stockpile > 50%, production of alloys *2
-If alloys  stockpile > 50%, production of weapons *2
-If weapons  stockpile > 50%, production of soybeans *2 (kill more bugs to chopchop forrest)
-If robots stockpile>50%, production of soybeans *2
-If robots stockpile>50%, production of minerals *2
-If robots stockpile>50%, production of alloys *2
++ If minerals stockpile > 50%, production of alloys *2
++ If alloys  stockpile > 50%, production of weapons *2
++ If weapons  stockpile > 50%, production of soybeans *2 (kill more bugs to chopchop forrest)
++ If robots stockpile>50%, production of soybeans *2
++ If robots stockpile>50%, production of minerals *2
++ If robots stockpile>50%, production of alloys *2
 
 
 
