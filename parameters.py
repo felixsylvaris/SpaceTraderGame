@@ -26,6 +26,7 @@ SHIP_START = {
     "passenger":      None,
     "radar":          False,
     "booster":        False,
+    "mining_drones":  False,
     "upgrades_bought": [],
 }
 
@@ -218,7 +219,7 @@ planets_template = {
 
 UPGRADES_DATA = {
     "kinetic_launcher":  {"name": "Kinetic Launcher",         "cost": 2000, "planet": None,          "desc": "Weapon+1. A classic."},
-    "mining_laser":      {"name": "Mining Laser",             "cost": 1000, "planet": "Zeta-9",      "desc": "Weapon+1. Cuts ore and pirates equally well."},
+    "mining_laser":      {"name": "Mining Laser",             "cost": 1000, "planet": "Zeta-9",      "desc": "Weapon+1. Required for asteroid mining."},
     "void_torpedo":      {"name": "Void Torpedo",             "cost": 5000, "planet": "Void Colony", "desc": "Weapon+2. Extremely illegal elsewhere."},
     "stern_tank":        {"name": "Stern Tank",               "cost": 1000, "planet": None,          "desc": "+200 fuel capacity."},
     "portside_tank":     {"name": "Portside Tank",            "cost": 2000, "planet": None,          "desc": "+300 fuel capacity."},
@@ -230,6 +231,7 @@ UPGRADES_DATA = {
     "passenger_quoters": {"name": "Passenger Quoters",        "cost": 1000, "planet": None,          "desc": "Unlock 1 passenger slot."},
     "long_range_radar":  {"name": "Long Range Radar",         "cost": 3000, "planet": "Terra",       "desc": "-15% pirate encounter chance. Terra exclusive."},
     "booster":           {"name": "Booster",                  "cost": 1000, "planet": "Void Colony", "desc": "Flee costs 5×angst fuel instead of 20×. Void Colony only."},
+    "mining_drones":     {"name": "Mining Drones",            "cost":10000, "planet": "Zeta-9",      "desc": "Mine entire asteroid field in 1 month. Zeta-9 only."},
 }
 
 # ── PIRATES ───────────────────────────────────────────────────
@@ -375,6 +377,7 @@ LOCAL_MARKET_EXCLUDE  = {"Mystery Crate"}
 # Cinnamon is special (produced on Terra) so its depot price is slightly higher.
 FLEET_DEPOT_PLANET = "Terra"
 FLEET_DEPOT_PRICES = {
+    # Spices
     "Cinnamon":    21,
     "Turmeric":    28,
     "Paprika":     31,
@@ -386,7 +389,32 @@ FLEET_DEPOT_PRICES = {
     "Saffron":     65,
     "Nutmeg":      62,
     "Void Pepper": 170,
+    # Industrial goods — min_price + spread + 5 (Weapons/Robots +1 only, made on Terra)
+    "Minerals":    34,   # 24 + 5 + 5
+    "Soybeans":    28,   # 18 + 5 + 5
+    "Alloys":      51,   # 36 + 10 + 5
+    "Medicine":    110,  # 90 + 15 + 5
+    "Weapons":     76,   # 60 + 15 + 1  (Terra production)
+    "Robots":      59,   # 48 + 10 + 1  (Terra production)
 }
+
+# ── INDEPENDENT TRADER ───────────────────────────────────────
+# Fires at end of each month cycle, after all price/stockpile adjustments.
+# Scans planet pairs, finds best arbitrage good, moves stock between planets.
+IND_TR_CHANCE      = 0.30   # probability independent trader activates this month
+IND_TR_SKIP_CHANCE = 0.30   # probability to skip each individual planet pair
+# Units moved per trade, by price category (high-price planet receives this amount)
+IND_TR_VOLUME      = {"low": 40, "mid": 20, "high": 10}
+IND_TR_PRICE_NUDGE = 5      # base_price shift applied to both planets after trade
+
+# ── MINING OPERATIONS ────────────────────────────────────────
+# Asteroid fields spawn at Zeta-9 and Void Colony on month 0 (Ianu) each year.
+# Field size is random in [MINE_FIELD_MIN, MINE_FIELD_MAX].
+# Fields reset each new year — unclaimed ore is taken by someone else.
+MINE_PLANETS       = ["Zeta-9", "Void Colony"]
+MINE_FIELD_MIN     = 10
+MINE_FIELD_MAX     = 100
+MINE_PER_MONTH     = 10     # minerals extracted per month of mining (without drones)
 
 # ── RANDOMISED START BOUNDS ──────────────────────────────────
 # Applied once on new game only (not on load).

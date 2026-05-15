@@ -71,6 +71,7 @@ UPGRADE_EFFECTS = {
     "passenger_quoters": lambda s: s.update({"passenger_slot": True}),
     "long_range_radar":  lambda s: s.update({"radar":          True}),
     "booster":           lambda s: s.update({"booster":        True}),
+    "mining_drones":     lambda s: s.update({"mining_drones":  True}),
 }
 
 # ─── CALENDAR ─────────────────────────────────────────────────────────────────
@@ -91,6 +92,8 @@ def advance_time(state, months=1):
         _apply_stockpile_pressure(state)
         _apply_inflation(state)
         _check_festival_drop(state)
+        _spawn_asteroid_fields(state)
+        _run_independent_trader(state)
 
 def current_harvest_good(month_index):
     for good, entry in P.GOOD_SEASONS.items():
@@ -279,6 +282,75 @@ def _check_festival_drop(state):
                     planet["base_prices"][good] = _clamp_base(
                         good, planet["base_prices"][good] - P.FESTIVAL_BOOST[bt])
 
+# ─── ASTEROID FIELDS ──────────────────────────────────────────────────────────
+
+def _spawn_asteroid_fields(state):
+    """Spawn/reset asteroid fields on month 0 (Ianu) each year."""
+    if state["month_index"] != 0:
+        return
+    for planet in P.MINE_PLANETS:
+        state["asteroid_fields"][planet] = random.randint(
+            P.MINE_FIELD_MIN, P.MINE_FIELD_MAX)
+
+# ─── INDEPENDENT TRADER ───────────────────────────────────────────────────────
+
+def _run_independent_trader(state):
+    """Simulate independent traders arbitraging between planet pairs."""
+    if random.random() >= P.IND_TR_CHANCE:
+        return
+
+    planets = list(state["planets"].keys())
+    # Generate all unique pairs
+    pairs = [(planets[i], planets[j])
+             for i in range(len(planets))
+             for j in range(i+1, len(planets))]
+
+    for p_a, p_b in pairs:
+        if random.random() < P.IND_TR_SKIP_CHANCE:
+            continue
+
+        planet_a = state["planets"][p_a]
+        planet_b = state["planets"][p_b]
+
+        # Find goods present on both planets
+        common = [g for g in planet_a["base_prices"]
+                  if g in planet_b["base_prices"]
+                  and g != "Mystery Crate"]
+        if not common:
+            continue
+
+        # Find good with highest base_price difference
+        best_good = max(common,
+                        key=lambda g: abs(planet_a["base_prices"][g]
+                                        - planet_b["base_prices"][g]))
+
+        price_a = planet_a["base_prices"][best_good]
+        price_b = planet_b["base_prices"][best_good]
+        if price_a == price_b:
+            continue
+
+        # Source = lower price, dest = higher price
+        src, dst = (p_a, p_b) if price_a < price_b else (p_b, p_a)
+
+        cat    = _good_cat(best_good)
+        volume = P.IND_TR_VOLUME[cat]
+        avail  = get_stk(state, src, best_good)
+        room   = _stk_max(best_good) - get_stk(state, dst, best_good)
+        amount = min(volume, avail, room)
+
+        if amount <= 0:
+            continue
+
+        # Move stock
+        set_stk(state, src, best_good, get_stk(state, src, best_good) - amount)
+        set_stk(state, dst, best_good, get_stk(state, dst, best_good) + amount)
+
+        # Nudge prices
+        state["planets"][src]["base_prices"][best_good] = _clamp_base(
+            best_good, state["planets"][src]["base_prices"][best_good] + P.IND_TR_PRICE_NUDGE)
+        state["planets"][dst]["base_prices"][best_good] = _clamp_base(
+            best_good, state["planets"][dst]["base_prices"][best_good] - P.IND_TR_PRICE_NUDGE)
+
 # ─── RANDOM EVENTS ────────────────────────────────────────────────────────────
 
 def _fire_random_event(state):
@@ -454,6 +526,9 @@ def show_market(ship, state):
     print()
     print("  [1] Buy   [2] Sell   [3] Travel")
     print("  [4] Status   [5] Price Check   [6] Promenade")
+    if loc in P.MINE_PLANETS:
+        field = state.get("asteroid_fields", {}).get(loc, 0)
+        print(f"  [a] Asteroid Field ({field} units remaining)")
     print("  [8] Engineering Bay   [9] Save   [q] Quit")
 
 # ─── TRADE ────────────────────────────────────────────────────────────────────
@@ -915,6 +990,117 @@ def visit_concert(ship, state):
     if song.get("art"): print(); print(song["art"])
     print("\n" + "★"*52)
 
+# ─── MINING ───────────────────────────────────────────────────────────────────
+
+def visit_asteroid_field(ship, state):
+    loc = ship["location"]
+    if loc not in P.MINE_PLANETS:
+        return
+
+    if "mining_laser" not in ship.get("upgrades_bought", []):
+        print("\n── ASTEROID FIELD ───────────────────────────────────")
+        print("  You drift toward the asteroid field and stare at the rocks.")
+        print("  The rocks stare back.")
+        print("  You need a Mining Laser to do anything useful here.")
+        print("  (Buy one in the Engineering Bay.)")
+        input("  [Enter to return...]")
+        return
+
+    while True:
+        field = state["asteroid_fields"].get(loc, 0)
+        free  = _cargo_free(ship)
+        print(f"\n── ASTEROID FIELD  —  {loc} ──────────────────────────")
+        print(f"  Field remaining : {field} units")
+        print(f"  Cargo free      : {free} units")
+        if ship.get("mining_drones"):
+            print(f"  Mining Drones   : installed (mine all in 1 month)")
+        print()
+        if field <= 0:
+            print("  The field is depleted. Nothing left to mine.")
+            input("  [Enter to return...]")
+            return
+        if free <= 0:
+            print("  Cargo hold is full. No room for ore.")
+            input("  [Enter to return...]")
+            return
+        print("  [1] Mine a little  (1 month, 10 minerals)")
+        print("  [2] Mine for several months")
+        print("  [3] Mine it all")
+        print("  [0] Back to Spaceport")
+        ch = input("Choose: ").strip().lower()
+
+        if ch == "q": return "QUIT"
+        elif ch == "0": return
+
+        elif ch == "1":
+            _do_mine_months(ship, state, loc, months=1)
+
+        elif ch == "2":
+            field = state["asteroid_fields"].get(loc, 0)
+            free  = _cargo_free(ship)
+            max_months = min(field // P.MINE_PER_MONTH + (1 if field % P.MINE_PER_MONTH else 0),
+                             free  // P.MINE_PER_MONTH)
+            if max_months <= 0:
+                print("  Not enough field or cargo space for even one month."); continue
+            raw = _get_int(f"  How many months? (max {max_months}): ", 1, max_months)
+            if raw == "QUIT": return "QUIT"
+            _do_mine_months(ship, state, loc, months=raw)
+
+        elif ch == "3":
+            _do_mine_all(ship, state, loc)
+
+        else:
+            print("  Invalid choice.")
+
+def _do_mine_months(ship, state, loc, months):
+    """Mine for a fixed number of months, 10 minerals per month."""
+    for i in range(months):
+        field = state["asteroid_fields"].get(loc, 0)
+        free  = _cargo_free(ship)
+        if field <= 0:
+            print("  Field exhausted."); break
+        if free <= 0:
+            print("  Cargo full."); break
+        extracted = min(P.MINE_PER_MONTH, field, free)
+        state["asteroid_fields"][loc] = field - extracted
+        ship["cargo"]["Minerals"] = ship["cargo"].get("Minerals", 0) + extracted
+        advance_time(state)
+        print(f"\n  ⛏  Month {i+1}: +{extracted} Minerals  "
+              f"(field: {state['asteroid_fields'][loc]}  cargo: {_cargo_used(ship)}/{ship['max_cargo']})")
+        print(f"  💭 {random.choice(L.MINING_THOUGHTS)}")
+
+def _do_mine_all(ship, state, loc):
+    """Mine until field empty or cargo full. Drones = 1 month for all."""
+    has_drones = ship.get("mining_drones", False)
+    if has_drones:
+        field     = state["asteroid_fields"].get(loc, 0)
+        free      = _cargo_free(ship)
+        extracted = min(field, free)
+        state["asteroid_fields"][loc] = field - extracted
+        ship["cargo"]["Minerals"] = ship["cargo"].get("Minerals", 0) + extracted
+        advance_time(state)
+        print(f"\n  🤖 Mining Drones deployed — extracted {extracted} Minerals in 1 month.")
+        print(f"  💭 {random.choice(L.MINING_THOUGHTS)}")
+        if field - extracted > 0:
+            print(f"  Cargo full — {field - extracted} units left in field.")
+    else:
+        month = 0
+        while True:
+            field = state["asteroid_fields"].get(loc, 0)
+            free  = _cargo_free(ship)
+            if field <= 0:
+                print("  Field fully depleted."); break
+            if free <= 0:
+                print("  Cargo full — some ore remains in the field."); break
+            extracted = min(P.MINE_PER_MONTH, field, free)
+            state["asteroid_fields"][loc] = field - extracted
+            ship["cargo"]["Minerals"] = ship["cargo"].get("Minerals", 0) + extracted
+            advance_time(state)
+            month += 1
+            print(f"\n  ⛏  Month {month}: +{extracted} Minerals  "
+                  f"(field: {state['asteroid_fields'][loc]}  cargo: {_cargo_used(ship)}/{ship['max_cargo']})")
+            print(f"  💭 {random.choice(L.MINING_THOUGHTS)}")
+
 # ─── PROMENADE ────────────────────────────────────────────────────────────────
 
 def visit_promenade(ship, state):
@@ -1038,6 +1224,7 @@ def save_game(ship, state):
                                    for n, p in state["planets"].items()},
         "stockpiles":             state["stockpiles"],
         "local_market":           state.get("local_market", {}),
+        "asteroid_fields":        state.get("asteroid_fields", {}),
         "turn":                   state["turn"],
         "month_index":            state["month_index"],
         "year":                   state["year"],
@@ -1062,6 +1249,7 @@ def load_game(planets, state):
                 planets[name]["base_prices"].update(pd["base_prices"])
         state["stockpiles"]             = data.get("stockpiles", state["stockpiles"])
         state["local_market"]           = data.get("local_market", {})
+        state["asteroid_fields"]        = data.get("asteroid_fields", {p: 0 for p in P.MINE_PLANETS})
         state["turn"]                   = data.get("turn", 1)
         state["month_index"]            = data.get("month_index", 0)
         state["year"]                   = data.get("year", P.START_YEAR)
@@ -1128,6 +1316,7 @@ def new_state(planets, randomise=False):
         "planets":                planets,
         "stockpiles":             init_stockpiles(planets, randomise=randomise),
         "local_market":           {},
+        "asteroid_fields":        {p: 0 for p in P.MINE_PLANETS},
         "turn":                   1,
         "month_index":            0,
         "year":                   P.START_YEAR,
@@ -1191,6 +1380,15 @@ def main():
             if ship.get("farm_bought"):
                 print("You retired to your cinnamon farm. You won. 🌿")
             break
+
+        # Asteroid field — string key, handle before int cast
+        if raw == "a":
+            if ship["location"] in P.MINE_PLANETS:
+                r = visit_asteroid_field(ship, state)
+                if r == "QUIT": break
+            else:
+                print("  No asteroid field here.")
+            continue
 
         try:
             action = int(raw)

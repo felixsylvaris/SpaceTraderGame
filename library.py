@@ -277,6 +277,33 @@ event_rnd_impact = [
     },
 ]
 
+# ── MINING THOUGHTS ──────────────────────────────────────────
+# One random line printed per month of mining.
+# Add more freely — no code changes needed.
+
+MINING_THOUGHTS = [
+    "It ain't much, but it's honest work.",
+    "Can't wait to feel gravity again.",
+    "Probably better than underground mines. Probably.",
+    "I own the means of production, but it's still hard labour.",
+    "I hope the market doesn't crash before I'm done out here.",
+    "Should've brought more beer for this.",
+    "This is work for drones. Where are my drones?",
+    "That's a lot of ore. Will it have any exchange value, or did I just move rocks?",
+    "A fellow miner passes by on the radio. At least there's someone to talk to.",
+    "Any longer out here and I'll start getting hallucinations from the void.",
+    "The asteroid doesn't care about my profit margins. We have an understanding.",
+    "Chunk by chunk. Credit by credit. The galaxy won't mine itself.",
+    "Space is very quiet except for the drill. And my thoughts. Too many thoughts.",
+    "First rule of mining: don't run out of cargo space before you run out of field.",
+    "Second rule of mining: there is no second rule. Just keep drilling.",
+    "The stars are beautiful out here. Would be more beautiful with 100 units of Minerals in my hold.",
+    "My back hurts. I'm in zero gravity. I don't know how that's possible.",
+    "One more pass. Always one more pass.",
+    "Somewhere on Nexus, a broker is getting rich trading mineral futures. I am the mineral future.",
+    "The field is smaller than yesterday. Progress feels physical out here.",
+]
+
 # ── INFOBROKER TABLES ─────────────────────────────────────────
 # Data is pulled from parameters — no hardcoded duplication.
 
