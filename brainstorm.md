@@ -58,8 +58,12 @@ There is parameter ind_tr_chance=0.5 which means chance to trigger intedepend tr
 Independent Trader scans all pairs of planets. Each time there is 50% to skip. Could also pick half pairs from pool of planets (that could be quicker). 
 For each planet it checks which good has highest difference on planets. It compares mean prices and dont care about sell/buy. 
 And for that good it performs a trade according to the stockpile. it goes like (high price) 10/20/40 (low price).
-Independent trader cant negative stockpile, or overstockpile. Excess goods are sold as flash deals (that is why we have local market). 
+Independent trader cant negative stockpile, or overstockpile. 
 Of course trader takes from low price planet, and moves to high price planet. 
+Trader will take max possible from low price, even if at end journey there is no space. 
+
+
+
 
 
 
