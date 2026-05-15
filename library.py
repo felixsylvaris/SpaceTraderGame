@@ -299,27 +299,35 @@ def infobroker_goods_table():
     """Goods Directory: which planets carry each good, production/demand roles."""
     good_planets  = {good: [] for good in P.GOOD_DATA}
     good_prod     = {}
+    good_ind_prod = {}
     good_demand   = {}
     for planet_name, pdata in P.planets_template.items():
-        for good in pdata["spices"]:
+        for good in pdata["goods"]:
             if good in good_planets:
                 good_planets[good].append(planet_name)
         good_prod[pdata["production"]]  = planet_name
         good_demand[pdata["demand"]]    = planet_name
+        for good in pdata["ind_production"]:
+            good_ind_prod[good] = planet_name
 
     rows = []
     for good in sorted(good_planets.keys()):
         if good == "Mystery Crate": continue
         planets_str = ", ".join(good_planets[good])
-        prod   = good_prod.get(good, "—")
+        if good in good_prod:
+            role = f"SPICE ({good_prod[good]})"
+        elif good in good_ind_prod:
+            role = f"INDUSTRY ({good_ind_prod[good]})"
+        else:
+            role = "—"
         demand = good_demand.get(good, "—")
-        rows.append((good, planets_str, prod, demand))
+        rows.append((good, planets_str, role, demand))
 
     print("\n── INFOBROKER: GOODS DIRECTORY ─────────────────────")
     _table(
         ("Good", "Planets", "Production", "Demand"),
         rows,
-        [14, 32, 14, 14],
+        [14, 32, 20, 14],
     )
 
 def infobroker_harvest_table():

@@ -87,6 +87,7 @@ def advance_time(state, months=1):
             state["year"]       += 1
         _run_consumption(state)
         _run_production(state)
+        _run_industrial_production(state)
         _apply_stockpile_pressure(state)
         _apply_inflation(state)
         _check_festival_drop(state)
@@ -177,9 +178,10 @@ def _apply_stockpile_pressure(state):
 # ─── PRODUCTION ───────────────────────────────────────────────────────────────
 
 def _run_production(state):
+    """Seasonal harvest production — spices only."""
     m = state["month_index"]
     for good, entry in P.GOOD_SEASONS.items():
-        if entry is None or good == "Void Pepper": continue
+        if entry is None: continue                      # no season = skip (covers industrials too)
         hm, _ = entry
         if m != hm: continue
         cat  = _good_cat(good)
@@ -202,20 +204,51 @@ def _run_production(state):
             amt = int(amt * P.PRODUCTION_ZERO_MULT)
         set_stk(state, "Void Colony", "Void Pepper", cur + amt)
 
+def _run_industrial_production(state):
+    """Monthly industrial production — fires every turn."""
+    # Build bonus multipliers: target_planet → target_good → multiplier (multiplicative stacking)
+    bonuses = {}
+    for trig_planet, trig_good, threshold, tgt_planet, tgt_good, mult in P.INDUSTRIAL_BONUS_RULES:
+        if _stk_ratio(state, trig_planet, trig_good) >= threshold:
+            bonuses.setdefault(tgt_planet, {}).setdefault(tgt_good, 1.0)
+            bonuses[tgt_planet][tgt_good] *= mult
+
+    for good, base_amt in P.INDUSTRIAL_PRODUCTION.items():
+        for pname, planet in state["planets"].items():
+            if good not in planet["ind_production"]: continue
+            if good not in planet["base_prices"]:    continue
+            amt  = base_amt
+            mult = bonuses.get(pname, {}).get(good, 1.0)
+            amt  = int(amt * mult)
+            cur  = get_stk(state, pname, good)
+            set_stk(state, pname, good, cur + amt)
+
 # ─── CONSUMPTION ──────────────────────────────────────────────────────────────
 
 def _run_consumption(state):
     for pname, planet in state["planets"].items():
         for good in list(planet["base_prices"].keys()):
             if good == "Void Pepper": continue
-            cat   = _good_cat(good)
-            amt   = P.CONSUMPTION_BASE[cat]
+
+            # Per-good industrial consumption rate overrides category default
+            if good in P.INDUSTRIAL_CONSUMPTION:
+                base_amt = P.INDUSTRIAL_CONSUMPTION[good]
+            else:
+                base_amt = P.CONSUMPTION_BASE[_good_cat(good)]
+
             ratio = _stk_ratio(state, pname, good)
-            if planet["demand"] == good:
-                amt = int(amt * P.CONSUMPTION_DEMAND_MULT)
-            if ratio >= P.STOCKPILE_HIGH_THRESHOLD:
-                amt = int(amt * P.CONSUMPTION_OVERFLOW_MULT)
-            set_stk(state, pname, good, max(0, get_stk(state, pname, good) - amt))
+
+            # Scarcity halving (floor 1) and abundance doubling
+            if ratio < P.STOCKPILE_LOW_THRESHOLD:
+                base_amt = max(1, base_amt // 2)
+            elif ratio >= P.STOCKPILE_HIGH_THRESHOLD:
+                base_amt = base_amt * 2
+
+            # Demand planet doubles consumption for spice goods only
+            if good not in P.INDUSTRIAL_CONSUMPTION and planet["demand"] == good:
+                base_amt = int(base_amt * P.CONSUMPTION_DEMAND_MULT)
+
+            set_stk(state, pname, good, max(0, get_stk(state, pname, good) - base_amt))
 
     for pname, consume in P.VOID_PEPPER_CONSUMPTION.items():
         set_stk(state, pname, "Void Pepper",
@@ -405,12 +438,18 @@ def show_market(ship, state):
     print(f"\n── MARKET: {loc} ──────────────────────────────────────")
     print(f"  {'Good':<18} {'Sell':>6} {'Buy':>6} {'Stock':>6}  {'Role'}")
     print(f"  {'─'*18} {'─'*6} {'─'*6} {'─'*6}  {'─'*12}")
-    for good in planet["spices"]:
+    for good in planet["goods"]:
         sp    = sell_price(state, loc, good)
         bp    = buy_price(state, loc, good)
         stock = get_stk(state, loc, good)
-        role  = ("◀ PRODUCTION" if good == planet["production"]
-                 else "▶ DEMAND" if good == planet["demand"] else "")
+        if good == planet["production"]:
+            role = "◀ SPICE"
+        elif good in planet["ind_production"]:
+            role = "◀ INDUSTRY"
+        elif good == planet["demand"]:
+            role = "▶ DEMAND"
+        else:
+            role = ""
         print(f"  {good:<18} {sp:>6} {bp:>6} {stock:>6}  {role}")
     print()
     print("  [1] Buy   [2] Sell   [3] Travel")
@@ -424,17 +463,17 @@ def do_buy(ship, state):
     planet = state["planets"][loc]
     if _cargo_free(ship) == 0:
         print("Cargo hold is full!"); return
-    spices = planet["spices"]
+    goods = planet["goods"]
     print("\n── BUY ──────────────────────────────────────────────")
-    for i, good in enumerate(spices, 1):
+    for i, good in enumerate(goods, 1):
         bp    = buy_price(state, loc, good)
         stock = get_stk(state, loc, good)
         print(f"  [{i}] {good:<18} {bp:>6} cr/unit  (stock: {stock})")
     print("  [0] Cancel")
-    ch = _get_int("Choose good: ", 0, len(spices))
+    ch = _get_int("Choose good: ", 0, len(goods))
     if ch == "QUIT": return "QUIT"
     if ch == 0: return
-    good  = spices[ch-1]
+    good  = goods[ch-1]
     bp    = buy_price(state, loc, good)
     stock = get_stk(state, loc, good)
     max_b = min(ship["credits"] // bp, _cargo_free(ship), stock)
@@ -686,9 +725,15 @@ def do_price_check(ship, state):
     print(sep)
     for pn in P.PLANET_NAMES:
         planet = state["planets"][pn]
-        for good in planet["spices"]:
-            role = ("PRODUCTION" if good == planet["production"]
-                    else "DEMAND" if good == planet["demand"] else "")
+        for good in planet["goods"]:
+            if good == planet["production"]:
+                role = "SPICE"
+            elif good in planet["ind_production"]:
+                role = "INDUSTRY"
+            elif good == planet["demand"]:
+                role = "DEMAND"
+            else:
+                role = ""
             print(f"  {_col(pn,W[0])} {_col(good,W[1])} "
                   f"{_col(planet['base_prices'][good],W[2])} "
                   f"{_col(sell_price(state,pn,good),W[3])} "

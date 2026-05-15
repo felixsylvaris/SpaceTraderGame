@@ -66,6 +66,13 @@ GOOD_DATA = {
     "Nutmeg":        ("high",    42,   140,   420),
     "Void Pepper":   ("high",   150,   500,  1500),
     "Mystery Crate": ("low",      1,    10,   500),  # wildcard — wide range
+    # ── Industrial goods — no harvest, produced every month ──
+    "Minerals":      ("low",     24,    80,   240),
+    "Soybeans":      ("low",     18,    60,   180),
+    "Alloys":        ("mid",     36,   120,   360),
+    "Robots":        ("mid",     48,   160,   480),
+    "Weapons":       ("high",    60,   200,   600),
+    "Medicine":      ("high",    90,   300,   900),
 }
 
 SPREAD_AMOUNT = {"low": 5, "mid": 10, "high": 15}
@@ -94,6 +101,13 @@ GOOD_SEASONS = {
     "Nutmeg":        (9, "high"),
     "Void Pepper":   None,         # exotic drug — no harvest cycle
     "Mystery Crate": None,
+    # Industrial goods — no harvest cycle
+    "Minerals":      None,
+    "Soybeans":      None,
+    "Alloys":        None,
+    "Robots":        None,
+    "Weapons":       None,
+    "Medicine":      None,
 }
 
 # Seasonal price offset by months-since-harvest (index 0 = harvest month)
@@ -119,54 +133,81 @@ PLANET_FESTIVALS = {
 }
 
 # ── PLANETS ───────────────────────────────────────────────────
-# production price = fixed cheap local price (frozen, never drifts)
-# demand price = fixed high local price (frozen, never drifts)
-# neutral good prices drift each turn within GOOD_DATA bounds
+# production     = spice produced here (◀ SPICE marker, frozen price)
+# demand         = spice in demand here (▶ DEMAND marker, frozen price)
+# ind_production = industrial goods produced here (◀ INDUSTRY marker)
+# goods          = all goods available on this planet (spices + industrials)
+# base_prices    = starting base prices for all goods
 
 planets_template = {
     "Terra": {
-        "production": "Cinnamon",
-        "demand":     "Allspice",
-        "spices": ["Cinnamon","Cardamom","Vanilla","Allspice","Clove","Paprika","Ginger"],
+        "production":     "Cinnamon",
+        "demand":         "Allspice",
+        "ind_production": ["Weapons", "Robots"],
+        "goods": [
+            "Cinnamon","Cardamom","Vanilla","Allspice","Clove","Paprika","Ginger",
+            "Alloys","Weapons","Robots","Medicine",
+        ],
         "base_prices": {
-            "Cinnamon": 25, "Cardamom": 100, "Vanilla": 90,
-            "Allspice": 120, "Clove": 70, "Paprika": 50, "Ginger": 70,
+            "Cinnamon": 25,  "Cardamom": 100, "Vanilla": 90,
+            "Allspice": 120, "Clove": 70,     "Paprika": 50,  "Ginger": 70,
+            "Alloys":   120, "Weapons": 200,  "Robots":  160, "Medicine": 300,
         },
     },
     "Zeta-9": {
-        "production": "Saffron",
-        "demand":     "Ginger",
-        "spices": ["Saffron","Turmeric","Paprika","Ginger","Nutmeg","Cinnamon"],
+        "production":     "Saffron",
+        "demand":         "Ginger",
+        "ind_production": ["Alloys"],
+        "goods": [
+            "Saffron","Turmeric","Paprika","Ginger","Nutmeg","Cinnamon",
+            "Minerals","Alloys","Robots","Soybeans",
+        ],
         "base_prices": {
             "Saffron": 100, "Turmeric": 50, "Paprika": 60,
-            "Ginger": 90, "Nutmeg": 135, "Cinnamon": 40,
+            "Ginger":  90,  "Nutmeg":  135, "Cinnamon": 40,
+            "Minerals": 80, "Alloys":  120, "Robots":  160, "Soybeans": 60,
         },
     },
     "Void Colony": {
-        "production": "Void Pepper",
-        "demand":     "Cardamom",
-        "spices": ["Void Pepper","Saffron","Ginger","Cardamom","Clove","Vanilla"],
+        "production":     "Void Pepper",
+        "demand":         "Cardamom",
+        "ind_production": ["Minerals"],
+        "goods": [
+            "Void Pepper","Saffron","Ginger","Cardamom","Clove","Vanilla",
+            "Minerals","Weapons","Medicine","Robots",
+        ],
         "base_prices": {
             "Void Pepper": 500, "Saffron": 200, "Ginger": 65,
-            "Cardamom": 80, "Clove": 40, "Vanilla": 100,
+            "Cardamom": 80,     "Clove": 40,    "Vanilla": 100,
+            "Minerals": 80,     "Weapons": 200, "Medicine": 300, "Robots": 160,
         },
     },
     "Agrica": {
-        "production": "Paprika",
-        "demand":     "Vanilla",
-        "spices": ["Paprika","Cinnamon","Turmeric","Vanilla","Allspice","Cardamom","Nutmeg"],
+        "production":     "Paprika",
+        "demand":         "Vanilla",
+        "ind_production": ["Soybeans"],
+        "goods": [
+            "Paprika","Cinnamon","Turmeric","Vanilla","Allspice","Cardamom","Nutmeg",
+            "Soybeans","Weapons","Robots",
+        ],
         "base_prices": {
-            "Paprika": 30, "Cinnamon": 50, "Turmeric": 30,
+            "Paprika": 30,  "Cinnamon": 50, "Turmeric": 30,
             "Vanilla": 120, "Allspice": 80, "Cardamom": 60, "Nutmeg": 100,
+            "Soybeans": 60, "Weapons": 200, "Robots":  160,
         },
     },
     "Nexus": {
-        "production": "Clove",
-        "demand":     "Turmeric",
-        "spices": ["Clove","Void Pepper","Nutmeg","Saffron","Turmeric","Allspice"],
+        "production":     "Clove",
+        "demand":         "Turmeric",
+        "ind_production": ["Medicine"],
+        "goods": [
+            "Clove","Void Pepper","Nutmeg","Saffron","Turmeric","Allspice",
+            "Alloys","Soybeans","Medicine",
+        ],
         "base_prices": {
-            "Clove": 35, "Void Pepper": 750, "Nutmeg": 110,
-            "Saffron": 175, "Turmeric": 40, "Allspice": 90,
+            "Clove": 35,     "Void Pepper": 750, "Nutmeg": 110,
+            "Saffron": 175,  "Turmeric": 40,     "Allspice": 90,
+            "Alloys": 120,   "Soybeans": 60,     "Medicine": 300,
         },
     },
 }
@@ -279,6 +320,43 @@ VOID_PEPPER_CONSUMPTION = {              # units consumed per month per planet
     "Void Colony": 2,
     "Nexus":       4,
 }
+
+# ── INDUSTRIAL GOODS ─────────────────────────────────────────
+# Industrial goods are produced every month (no harvest season).
+# Single production planet per good. No home multiplier — just flat output.
+
+# Base monthly production on the production planet only
+INDUSTRIAL_PRODUCTION = {
+    "Minerals": 8,
+    "Soybeans": 8,
+    "Alloys":   4,
+    "Robots":   4,
+    "Weapons":  2,
+    "Medicine": 2,
+}
+
+# Monthly consumption per planet that carries the good.
+# Explicit per-good rates — does not use CONSUMPTION_BASE.
+INDUSTRIAL_CONSUMPTION = {
+    "Minerals": 4,
+    "Soybeans": 4,
+    "Alloys":   2,
+    "Robots":   2,
+    "Weapons":  2,
+    "Medicine": 2,
+}
+
+# Cross-good production bonus rules.
+# (trigger_planet, trigger_good, threshold, target_planet, target_good, multiplier)
+# If trigger_good stockpile at trigger_planet >= threshold fraction → multiply target production.
+INDUSTRIAL_BONUS_RULES = [
+    ("Void Colony", "Minerals", 0.50, "Zeta-9",       "Alloys",   2.0),
+    ("Zeta-9",      "Alloys",   0.50, "Terra",         "Weapons",  2.0),
+    ("Terra",       "Weapons",  0.50, "Agrica",        "Soybeans", 2.0),  # kill bugs → farm more
+    ("Terra",       "Robots",   0.50, "Agrica",        "Soybeans", 2.0),  # robots harvest fields
+    ("Terra",       "Robots",   0.50, "Void Colony",   "Minerals", 2.0),  # robots mine
+    ("Terra",       "Robots",   0.50, "Zeta-9",        "Alloys",   2.0),  # robots smelt
+]
 
 # ── LOCAL MARKET ─────────────────────────────────────────────
 # 5 independent trader slots rolled fresh on each planet arrival.
