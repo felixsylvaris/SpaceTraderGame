@@ -43,3 +43,16 @@ and so on.
 -> Good job you are inside Temple, now what? a) ask scientist for tips b) I have journal of crazy archeologist c) It is about journey not destination. 
 Resolution: 
 Count success points acquired during expedition. If we get good we get artifacts. If we got very good we receive ancient lasergun which pimps our ship weapons. 
+
+### New Goods
+Potencial new goods:
+Minerals
+Alloys
+Tools
+Robots
+Microchip
+Chemicals
+Medicine
+Datacube
+Soybeans. 
+Weapons
