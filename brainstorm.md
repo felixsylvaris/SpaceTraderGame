@@ -46,13 +46,20 @@ Count success points acquired during expedition. If we get good we get artifacts
 
 ### New Goods
 Potencial new goods:
-Minerals
-Alloys
 Tools
-Robots
 Microchip
 Chemicals
-Medicine
 Datacube
-Soybeans. 
-Weapons
+
+
+### Independent Trader
+Independent traders happens late in month cycle. It happens late in the cycle after price and stockpile adjustment. 
+There is parameter ind_tr_chance=0.5 which means chance to trigger intedepend trader. 
+Independent Trader scans all pairs of planets. Each time there is 50% to skip. Could also pick half pairs from pool of planets (that could be quicker). 
+For each planet it checks which good has highest difference on planets. It compares mean prices and dont care about sell/buy. 
+And for that good it performs a trade according to the stockpile. it goes like (high price) 10/20/40 (low price).
+Independent trader cant negative stockpile, or overstockpile. Excess goods are sold as flash deals (that is why we have local market). 
+
+
+
+
