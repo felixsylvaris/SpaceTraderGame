@@ -21,6 +21,8 @@ On Agrica on Promenade there is Expedition Center location under key "e", we can
 2) Shop
 0) Back to promenade
 
+*0)* is a key of choice to go back. But .md knows better. 
+
 ### 2) Shop
 We can buy some upgrades for out character, Character sheets stays pernament over game. Including other expeditions or character story. Each equipment could be bouht only once. 
 1) Guns 1000c (Power +1)
@@ -28,6 +30,7 @@ We can buy some upgrades for out character, Character sheets stays pernament ove
 3) Med Kit 2000c (Medicine +2, Science +1)
 4) ScoutDrone 3000c (Perception +3)
 5) Hire Bodyguard 5000k (Power+3, Health +3, Agility +1, Perception+1)
+0) Let me out.
 
 ### Expeditions avaiable
 There is only one expedition to choose, we have democracy:
@@ -43,6 +46,16 @@ What a bargain. On Nexus we can get twice as much for this."
 2) I need shop first->go to shop
 3) No, never, this is not for me. (use easyjob token) 
 0) Maybe another time
+
+# Adventure Easy Job
+We need easyjobtoken to start it. 
+We need 5000c or more in bank, otherwise msg "You need 5000c to seal the deal."
+We ise our token. 
+We generete exphp=[health,health] exphp[0] is temp health, and is quite important if it reach 0, we yeet out of mission, but we are still alive, maybe. [1] is max hp, probably useless. 
+
+We copy our character sheet, and list of upgrades as temp. Maybe we will upgrade it later. 
+
+
 
 
 
