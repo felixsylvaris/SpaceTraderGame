@@ -507,3 +507,7 @@ This creates varied starting conditions while keeping the parameter table as a m
 | New good | Add to `GOOD_DATA`, `GOOD_SEASONS`, each planet's `goods` and `base_prices` in `parameters.py`; add to `INDUSTRIAL_PRODUCTION`/`INDUSTRIAL_CONSUMPTION` if industrial |
 | New planet | Add to `PLANET_NAMES` and `planets_template` in `parameters.py`; add cantina entry to `library.py` |
 | Tune balance | Edit values in `parameters.py` — no logic changes needed |
+
+## Recent Changes
+Added Blackjack in Cantina. 
+---
