@@ -56,6 +56,8 @@ We generete exphp=[health,health] exphp[0] is temp health, and is quite importan
 We copy our character sheet, and list of upgrades as temp. Maybe we will upgrade it later. 
 
 **Adventure model:** We travel paragraphs like it was dungeon with rooms, doors, pathways. Some pathways lead to optional rooms. Many pathways have some test or req. Inside rooms there is fluff text and test for optional fluff text (background check). Some would say it is copy of DiscoElisium. 
+Easy Job grapph: Get quest -> Maybe do research od city ->Meet outside city -> It is a TRAP ->Fight or run -RESOLUTION-> We bleed in the alley OR we can get goods and money.   
+So linear.  
 
 
 
