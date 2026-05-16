@@ -44,10 +44,14 @@ v6   Original
 =============================================================
 """
 
-import random, json, math, os, copy
+import random, json, math, os, copy, sys
 import parameters as P
 import library    as L
 from songs import SONGS
+
+# Add data/ directory to path for blackjack module
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "data"))
+from blackjack import play_blackjack
 
 try:
     import requests as _requests
@@ -616,6 +620,7 @@ def do_travel(ship, state):
     ship["fuel"]         -= fc
     ship["location"]      = dest
     state["news_printed"] = False
+    state["blackjack_tokens"] = 3
     advance_time(state)
     print(f"\n🚀 Jumped to {dest}. Fuel used: {fc}. Date: {date_str(state)}")
 
@@ -908,10 +913,12 @@ def visit_cantina(ship, state):
     while True:
         pw  = state.get("passenger_waiting")
         hq  = ship.get("passenger_slot", False)
+        tokens = state.get("blackjack_tokens", 3)
         print(f"\n── {cantina['name'].upper()} ({ship['location']}) ───────────────────")
         print("  [1] Drink   [2] Advice")
         if hq: print(f"  [3] Traveler — {pw['shortname']+' → '+pw['destination'] if pw else '(none)'}")
-        print("  [4] Rest (1 month)   [0] Back")
+        print(f"  [4] Rest (1 month)   [5] Game Table [{tokens} token{'s' if tokens != 1 else ''}]")
+        print("  [0] Back")
         ch = input("Choose: ").strip().lower()
 
         if ch == "q": return "QUIT"
@@ -949,6 +956,8 @@ def visit_cantina(ship, state):
             advance_time(state)
             _spawn_passenger(ship, state)
             print(f"  Date: {date_str(state)}")
+        elif ch == "5":
+            play_blackjack(ship, state)
         elif ch == "0":
             break
         else:
@@ -1233,6 +1242,7 @@ def save_game(ship, state):
         "galaxy_story_index":     state["galaxy_story_index"],
         "passenger_waiting":      state.get("passenger_waiting"),
         "festival_drops_applied": list(state["festival_drops_applied"]),
+        "blackjack_tokens":       state.get("blackjack_tokens", 3),
     }
     try:
         with open(P.SAVE_FILE, "w") as f: json.dump(data, f, indent=2)
@@ -1258,6 +1268,7 @@ def load_game(planets, state):
         state["galaxy_story_index"]     = data.get("galaxy_story_index", 0)
         state["passenger_waiting"]      = data.get("passenger_waiting")
         state["festival_drops_applied"] = set(data.get("festival_drops_applied", []))
+        state["blackjack_tokens"]       = data.get("blackjack_tokens", 3)
         print(f"📂 Loaded from {P.SAVE_FILE}")
         return data["ship"]
     except (OSError, json.JSONDecodeError, KeyError) as e:
@@ -1326,6 +1337,7 @@ def new_state(planets, randomise=False):
         "passenger_waiting":      None,
         "festival_drops_applied": set(),
         "news_printed":           False,
+        "blackjack_tokens":       3,
     }
 
 # ─── MAIN ─────────────────────────────────────────────────────────────────────
