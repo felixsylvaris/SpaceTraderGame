@@ -1,25 +1,50 @@
-# BlackJack at Cantina
-In each Cantina there is Game Table with Blackjack game as an option.  
-Each time player visits new planet, we get 3 game tokens. Winning any mini game eats one token. If we win 3 times we need to move to another planet. We are too good for local scene.  
+# Expedition
+Expedition is the new mini game. Which is paragraph game, with character sheet, and some rolls. 
+Expedition each has special file in data/exp/ they could get quite long.  
+But character sheet is universal and lives in parameters.  
 
-There are 3 opponents to choose from:
-Skittish Tom: pass above 15, wager limit 500, entry 50
-Mad Alice: pass above 18, wager limit 1000, entry 100
-Lucky "Ace" Jack: pass above 17, wager limit 2000, entry 200, draws Ace of Spades as his first card from deck. 
-You play one opponent at the time. You cant bet more than their limit.
-We need example 500c in bank to even play Skittish Tom. 
+## Character Sheet
+In parameters we gain character sheet. Which is more about our character than ship. It stays over game, and we can get bonuses. We have character sheet dict, and equipment dict (with upgrades we both). 
+Stats: (if there is no base, then base 0)
+- Power
+- Science
+- Medicine 
+- Perception
+- Agiity
+- Health (base 3)
+- Supply
+- Cargo (base 1) 
 
-There is deck generation. With figures and numbers. Numbers 2-10 count as value. Figures count all 10. Ace counts 1 or 11 whichever suits us. 
-We can draw extra card as long as we want, but if we bust we loose the game. 
-After we draw our cards we can double bet. 
-AI: 21: 3 doubles, 19+:2 doubles, 17+: 1 double
-If someones refuse to double we resolve the game without it. We show our cards.   
-If AI bust by rng player wins. 
+## Finding Expedition
+On Agrica on Promenade there is Expedition Center location under key "e", we can find there:
+1) Start expedition
+2) Shop
+0) Back to promenade
 
-If we win we get our money back, and opponents money. 
-If we loose we bet our bet score. 
+### 2) Shop
+We can buy some upgrades for out character, Character sheets stays pernament over game. Including other expeditions or character story. Each equipment could be bouht only once. 
+1) Guns 1000c (Power +1)
+2) Body Armor 2000c (Power +1, Health +2)
+3) Med Kit 2000c (Medicine +2, Science +1)
+4) ScoutDrone 3000c (Perception +3)
+5) Hire Bodyguard 5000k (Power+3, Health +3, Agility +1, Perception+1)
 
-the game sits in blackjack.py in /data/ catalogue.  
+### Expeditions avaiable
+There is only one expedition to choose, we have democracy:
+1) "Easy Job" (req easy_job_token)
+0) Back
+
+*EasyJobToken* In parameters there is easy_job_token=1. Which allows us one attempt for EasyJob expedition. 
+
+->1) Fluff explanation appears:
+"Local Gang offers a bit of Beetlejuice which is local slang for Void Peppers but made from Agricas Bug refining. It has similar effect and taste, but this substitute is hard to sell. We can get 20units for 5k. 
+What a bargain. On Nexus we can get twice as much for this." 
+1) Lets go! (start expedition) 
+2) I need shop first->go to shop
+3) No, never, this is not for me. (use easyjob token) 
+0) Maybe another time
+
+
 
 
 
