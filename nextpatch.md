@@ -33,6 +33,9 @@ We can buy some upgrades for out character, Character sheets stays pernament ove
 6) Jet Pack 2000c (Agility +2)
 0) Let me out.
 
+Shop stays open, mission or not.  
+Upgrades are pernament on our charaacter sheet, so it should sit in parameters, and could be used among missions, and also personall story one day. 
+
 ### Expeditions avaiable
 There is only one expedition to choose, we have democracy:
 1) "Easy Job" (req easy_job_token)
@@ -52,7 +55,7 @@ What a bargain. On Nexus we can get twice as much for this."
 We need easyjobtoken to start it. 
 We need 5000c or more in bank, otherwise msg "You need 5000c to seal the deal."
 We ise our token. 
-We generete exphp=[health,health] exphp[0] is temp health, and is quite important if it reach 0, we yeet out of mission, but we are still alive, maybe. [1] is max hp, probably useless. 
+We generete exphp=[health,health] exphp[0] is temp health, and is quite important if it reach 0, we yeet out of mission, but we are still alive, maybe. exphp[1] is max hp, probably useless. But maybe we use max hp to limit healing. But exphp[0] is generally used.
 
 We copy our character sheet, and list of upgrades as temp. Maybe we will upgrade it later. 
 
@@ -120,7 +123,7 @@ Print *Anyway, you started blasting. Crunched behind fallen tree trunk you shot 
 [If power>=2, loose max(4-power,0) hp] Print: *You put some good fight, they warent expecting such resitance. Maybe outgunned but never outmatched. Vex and his punk got busted tonight.* 
 -> Upper Hand <ejx03>
 
-[If power<2, loose 3 health] Print: *You tried, you failed again. Too many guns, too many enemies, you never asked for this. Soon you fall in the mud, wondering if this is the end of your journey. At best you loose your money. Maybe even life.*
+[If power<2, lose 3 health] Print: *You tried, you failed again. Too many guns, too many enemies, you never asked for this. Soon you fall in the mud, wondering if this is the end of your journey. At best you loose your money. Maybe even life.*
 ->sad ending <ej05>
 
 ### 3. Upper hand <ejx03>
@@ -144,14 +147,21 @@ Print: *- Now you are talking? You tried to kill me you madman. I should take yo
 #### I never asked for this <ejx03x03>
 Print: *After all this effort you no longer feel like life of criminal drug lord is for you. You leave vex and his drugs bleeding in the jungle. Maybe bugs will eat him. One way or another, he is not your problem anymore.*
 
-#### No loose ends <ejx03x04>
+#### No lose ends <ejx03x04>
 Print: * - Look who got busted, Punk - You mock bleeding Vex waving your laser pistol. - Now you want to talk? So listen. I need drugs. I need money. I dont need you. Nobody betrayes me. You bring it upon yourself. I am the sword  of justice. - You kill the sucker with cold blood. Now drugs are all yours. Better get out jungle, before someone comes to ask quesitions about corpses and shoting.*
-[Get 20 Void peppers, back to promenade, vex dead, end mission]
+[Get 20 Void peppers, back to promenade, vex dead, no money lost,  end mission]
 
 ### 5. Bleeding Out <ej05>
-Print: *You loose your credits. Your blood. Your dignity. And dont even made drug deal. What a waste of time. You slowly crawled back to spaceport. Where bartender finds you, at least you get free drink and ice pack. *
-[end of mission]
+Print: *You lose your credits. Your blood. Your dignity. And dont even made drug deal. What a waste of time. You slowly crawled back to spaceport. Where bartender finds you, at least you get free drink and ice pack. *
+[lose 5000c, end of mission]
+We only lose 5000c in whole mission once one way or another. Bleeding out should should be place where we lose money if we fail run or fight aproach. There is also handle cash but it should not lead to bleed out. 
 
+
+### End notes:
+.md sometimes knows better with numeration and i generally want 0) as back to promenade there could be 9) to exit and also abandon mission completly. 
+Fix grammar and spelling like loose lose ends somewhere. 
+You can expand fluff text to make it richer, more detailed, and more gritty cyberpunk night run. 
+We only move 5000c in easy job mission, 5000k is mistake (should be 5000c) 
 
 
 
