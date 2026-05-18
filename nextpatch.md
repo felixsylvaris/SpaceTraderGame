@@ -1,7 +1,13 @@
 # Expedition
 Expedition is the new mini game. Which is paragraph game, with character sheet, and some rolls. 
-Expedition each has special file in data/exp/ they could get quite long.  
+Expedition each has separete .py file in data/exp/ they could get quite long.  
 But character sheet is universal and lives in parameters.  
+
+### Start  notes:
+.md sometimes knows better with numeration and i generally want 0) as back to promenade there could be 9) to exit and also abandon mission completly. 
+Fix grammar and spelling like loose lose ends somewhere. 
+You can expand fluff text to make it richer, more detailed, and more gritty cyberpunk night run. 
+We only move 5000c in easy job mission, 5000k is mistake (should be 5000c) but i might already fix it it text.   
 
 ## Character Sheet
 In parameters we gain character sheet. Which is more about our character than ship. It stays over game, and we can get bonuses. We have character sheet dict, and equipment dict (with upgrades we both). 
@@ -21,7 +27,7 @@ On Agrica on Promenade there is Expedition Center location under key "e", we can
 2) Shop
 0) Back to promenade
 
-*0)* is a key of choice to go back. But .md knows better. 
+*0)* is a key of choice to go back. But .md edittor knows better and keep changing it. 
 
 ### 2) Shop
 We can buy some upgrades for out character, Character sheets stays pernament over game. Including other expeditions or character story. Each equipment could be bouht only once. 
@@ -29,7 +35,7 @@ We can buy some upgrades for out character, Character sheets stays pernament ove
 2) Body Armor 2000c (Power +1, Health +2)
 3) Med Kit 2000c (Medicine +2, Science +1)
 4) ScoutDrone 3000c (Perception +3)
-5) Hire Bodyguard 5000k (Power+3, Health +3, Agility +1, Perception+1)
+5) Hire Bodyguard 5000c (Power+3, Health +3, Agility +1, Perception+1)
 6) Jet Pack 2000c (Agility +2)
 0) Let me out.
 
@@ -86,7 +92,7 @@ Print: *You ask around, walk around city and promenade. You get into fight with 
 [Test if Agility>=1] Print: "You sneak behind someone who could be member of Punkbusters gang, they trace to Spaceport, and talk with other freighter, port logs suggest it is departing tomorrow.*
 Print: *You are not sure if nosebleed was worth it.*
 1) Time to seal the deal. (continue and use token) -><ejx02>
-9) Too much risk, abandon mission (Promenade and use token)
+9) Too much risk, abandon mission (Promenade and use token, we abandon mission completly)
 0) Back to promenade
 
 ### 2. Meet the Vex <ejx02>
@@ -157,11 +163,7 @@ Print: *You lose your credits. Your blood. Your dignity. And dont even made drug
 We only lose 5000c in whole mission once one way or another. Bleeding out should should be place where we lose money if we fail run or fight aproach. There is also handle cash but it should not lead to bleed out. 
 
 
-### End notes:
-.md sometimes knows better with numeration and i generally want 0) as back to promenade there could be 9) to exit and also abandon mission completly. 
-Fix grammar and spelling like loose lose ends somewhere. 
-You can expand fluff text to make it richer, more detailed, and more gritty cyberpunk night run. 
-We only move 5000c in easy job mission, 5000k is mistake (should be 5000c) 
+
 
 
 
