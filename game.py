@@ -52,6 +52,7 @@ from songs import SONGS
 # Add data/ directory to path for blackjack module
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "data"))
 from blackjack import play_blackjack
+from exp.easy_job import run_easy_job
 
 try:
     import requests as _requests
@@ -1110,9 +1111,114 @@ def _do_mine_all(ship, state, loc):
                   f"(field: {state['asteroid_fields'][loc]}  cargo: {_cargo_used(ship)}/{ship['max_cargo']})")
             print(f"  💭 {random.choice(L.MINING_THOUGHTS)}")
 
+# ─── EXPEDITION CENTER ────────────────────────────────────────────────────────
+
+def visit_expedition_center(ship, character, state):
+    """Agrica only. Expedition shop and mission launcher."""
+    while True:
+        print(f"\n── EXPEDITION CENTER  —  Agrica ─────────────────────")
+        stats = character["stats"]
+        print(f"  Power:{stats['power']}  Science:{stats['science']}  "
+              f"Medicine:{stats['medicine']}  Perception:{stats['perception']}")
+        print(f"  Agility:{stats['agility']}  Health:{stats['health']}  "
+              f"Cargo:{stats['cargo']}")
+        print(f"  Equipment: {', '.join(character['equipment']) if character['equipment'] else 'none'}")
+        print()
+        print("  [1] Start Expedition")
+        print("  [2] Shop")
+        print("  [0] Back to Promenade")
+        ch = input("Choose: ").strip().lower()
+
+        if ch == "q": return "QUIT"
+        elif ch == "0": return
+        elif ch == "2":
+            _expedition_shop(ship, character)
+        elif ch == "1":
+            _expedition_missions(ship, character, state)
+        else:
+            print("  Invalid.")
+
+def _expedition_shop(ship, character):
+    """Buy permanent character equipment."""
+    while True:
+        print(f"\n── EXPEDITION SHOP ──────────────────────────────────")
+        print(f"  Credits: {ship['credits']:,}")
+        print()
+        items = list(P.CHAR_EQUIPMENT.items())
+        for i, (key, item) in enumerate(items, 1):
+            owned = key in character["equipment"]
+            tag   = "  [owned]" if owned else f"  {item['cost']:,} cr"
+            efx   = ", ".join(f"{k}+{v}" for k, v in item["effects"].items())
+            print(f"  [{i}] {item['name']:<20} {efx:<30} {tag}")
+            print(f"       {item['desc']}")
+        print("  [0] Back")
+        ch = _get_int("Choose: ", 0, len(items))
+        if ch == "QUIT": return "QUIT"
+        if ch == 0: return
+        key, item = items[ch-1]
+        if key in character["equipment"]:
+            print(f"  Already equipped."); continue
+        if ship["credits"] < item["cost"]:
+            print(f"  Need {item['cost']:,} cr, have {ship['credits']:,}."); continue
+        ship["credits"] -= item["cost"]
+        character["equipment"].append(key)
+        for stat, val in item["effects"].items():
+            character["stats"][stat] = character["stats"].get(stat, 0) + val
+        print(f"✓ {item['name']} acquired.  "
+              f"Stats updated: {', '.join(f'{k}+{v}' for k,v in item['effects'].items())}")
+
+def _expedition_missions(ship, character, state):
+    """Choose and launch an expedition."""
+    token = character.get("easy_job_token", 0)
+    while True:
+        print(f"\n── EXPEDITIONS ──────────────────────────────────────")
+        print("""
+  A notice board lists available contracts. Most are crossed out.
+  Someone has scrawled "KILLED IT" across three of them.
+  One remains.
+        """)
+        tok_str = f"{token} attempt remaining" if token > 0 else "no attempts left"
+        print(f"  [1] Easy Job  ({tok_str})")
+        print(f"       Local gang, synthetic void, quick trade. What could go wrong.")
+        print("  [0] Back")
+        ch = input("Choose: ").strip().lower()
+        if ch == "0" or ch == "q": return
+        if ch == "1":
+            if token <= 0:
+                print("  Vex got word you backed out. He's not taking your calls.")
+                print("  This contract is burned."); continue
+            # Pre-mission fluff
+            print(f"""
+  ── EASY JOB ─────────────────────────────────────────
+  Local Gang offers synthetic Void Pepper — Beetlejuice,
+  they call it. Made from Agrica's bugs. Similar effect,
+  harder sell. 20 units for 5,000 credits.
+
+  On Nexus that's worth twice the price. Easy money.
+  In and out. Classic easy job.
+            """)
+            print("  [1] Let's go.")
+            print("  [2] I need the shop first.")
+            print("  [3] Not for me. Walk away. (uses attempt)")
+            print("  [0] Maybe another time.")
+            ch2 = input("  ").strip().lower()
+            if ch2 == "0": return
+            if ch2 == "2":
+                _expedition_shop(ship, character); continue
+            if ch2 == "3":
+                character["easy_job_token"] -= 1
+                token -= 1
+                print("  You walk. Vex won't be happy. Attempt used."); return
+            if ch2 == "1":
+                run_easy_job(ship, character, state)
+                token = character.get("easy_job_token", 0)
+                return
+        else:
+            print("  Invalid.")
+
 # ─── PROMENADE ────────────────────────────────────────────────────────────────
 
-def visit_promenade(ship, state):
+def visit_promenade(ship, character, state):
     loc = ship["location"]
     while True:
         print(f"\n── PROMENADE  —  {loc} ──────────────────────────────")
@@ -1122,6 +1228,8 @@ def visit_promenade(ship, state):
             lbl = "Visit Farm" if ship.get("farm_bought") else f"Buy Farm [{P.FARM_COST:,} cr]"
             print(f"  [f] {lbl}")
             print(f"  [s] Fleet Supply Depot")
+        if loc == "Agrica":
+            print(f"  [e] Expedition Center")
         print("  [0] Back to Spaceport")
         ch = input("Choose: ").strip().lower()
 
@@ -1150,6 +1258,9 @@ def visit_promenade(ship, state):
                 visit_farm(ship, state)
         elif ch == "s" and loc == P.FLEET_DEPOT_PLANET:
             r = visit_fleet_depot(ship, state)
+            if r == "QUIT": return "QUIT"
+        elif ch == "e" and loc == "Agrica":
+            r = visit_expedition_center(ship, character, state)
             if r == "QUIT": return "QUIT"
         elif ch == "0": break
         else: print("  Invalid.")
@@ -1226,9 +1337,10 @@ def _upgrades_menu(ship, state):
 
 # ─── SAVE / LOAD ──────────────────────────────────────────────────────────────
 
-def save_game(ship, state):
+def save_game(ship, character, state):
     data = {
         "ship":                   dict(ship),
+        "character":              character,
         "planets_prices":         {n: {"base_prices": p["base_prices"]}
                                    for n, p in state["planets"].items()},
         "stockpiles":             state["stockpiles"],
@@ -1251,7 +1363,7 @@ def save_game(ship, state):
         print(f"⚠️  Save failed: {e}")
 
 def load_game(planets, state):
-    if not os.path.exists(P.SAVE_FILE): return None
+    if not os.path.exists(P.SAVE_FILE): return None, None
     try:
         with open(P.SAVE_FILE) as f: data = json.load(f)
         for name, pd in data["planets_prices"].items():
@@ -1269,10 +1381,11 @@ def load_game(planets, state):
         state["passenger_waiting"]      = data.get("passenger_waiting")
         state["festival_drops_applied"] = set(data.get("festival_drops_applied", []))
         state["blackjack_tokens"]       = data.get("blackjack_tokens", 3)
+        character = data.get("character", copy.deepcopy(P.CHAR_START))
         print(f"📂 Loaded from {P.SAVE_FILE}")
-        return data["ship"]
+        return data["ship"], character
     except (OSError, json.JSONDecodeError, KeyError) as e:
-        print(f"⚠️  Load failed: {e}"); return None
+        print(f"⚠️  Load failed: {e}"); return None, None
 
 # ─── INIT ─────────────────────────────────────────────────────────────────────
 
@@ -1322,6 +1435,9 @@ def init_stockpiles(planets, randomise=False):
 def new_ship():
     return copy.deepcopy(P.SHIP_START)
 
+def new_character():
+    return copy.deepcopy(P.CHAR_START)
+
 def new_state(planets, randomise=False):
     return {
         "planets":                planets,
@@ -1350,21 +1466,22 @@ def main():
 
     if os.path.exists(P.SAVE_FILE):
         if input("\nSave file found. Load it? [y/n]: ").strip().lower() == "y":
-            # Load: init planets normally (no randomise), then overwrite from save
             planets = init_planets(randomise=False)
             state   = new_state(planets, randomise=False)
-            loaded  = load_game(planets, state)
-            ship    = loaded if loaded else new_ship()
-            is_new_game = (loaded is None)
+            loaded_ship, loaded_char = load_game(planets, state)
+            ship      = loaded_ship  if loaded_ship  else new_ship()
+            character = loaded_char  if loaded_char  else new_character()
+            is_new_game = (loaded_ship is None)
         else:
             is_new_game = True
     else:
         is_new_game = True
 
     if is_new_game:
-        planets = init_planets(randomise=True)
-        state   = new_state(planets, randomise=True)
-        ship    = new_ship()
+        planets   = init_planets(randomise=True)
+        state     = new_state(planets, randomise=True)
+        ship      = new_ship()
+        character = new_character()
 
     # Roll local market for starting planet
     loc = ship["location"]
@@ -1422,18 +1539,18 @@ def main():
         elif action == 4: show_status(ship, state)
         elif action == 5: do_price_check(ship, state)
         elif action == 6:
-            r = visit_promenade(ship, state)
+            r = visit_promenade(ship, character, state)
             if r == "QUIT": break
         elif action == 8:
             r = visit_engineering_bay(ship, state)
             if r == "QUIT": break
-        elif action == 9: save_game(ship, state)
+        elif action == 9: save_game(ship, character, state)
         else: print("  Invalid action.")
 
     # Offer save on quit
     print()
     if input("Save before leaving? [y/n]: ").strip().lower() == "y":
-        save_game(ship, state)
+        save_game(ship, character, state)
     print("Fair winds, trader.")
 
 if __name__ == "__main__":

@@ -434,3 +434,65 @@ RAND_PRICE_MAX_FRAC  = 3.00
 # RND_EVENT_SPLIT: probability the fired event is an impact event.
 # Remaining probability draws from the blank (flavour-only) pool.
 RND_EVENT_SPLIT = 0.20   # 20% impact, 80% blank
+
+# ── CHARACTER SHEET ──────────────────────────────────────────
+# Separate from ship state. Persists across all expeditions and sessions.
+# Stats are numeric. Equipment is a list of purchased item keys.
+
+CHAR_START = {
+    "stats": {
+        "power":      0,
+        "science":    0,
+        "medicine":   0,
+        "perception": 0,
+        "agility":    0,
+        "health":     3,
+        "supply":     0,
+        "cargo":      1,
+    },
+    "equipment":      [],   # list of purchased equipment keys
+    "easy_job_token": 1,    # attempts remaining for Easy Job mission
+}
+
+# ── CHARACTER EQUIPMENT SHOP ─────────────────────────────────
+# Sold at Expedition Center on Agrica. Bought once. Permanent.
+# effects: applied to character["stats"] on purchase.
+
+CHAR_EQUIPMENT = {
+    "guns": {
+        "name":    "Guns",
+        "cost":    1000,
+        "desc":    "A trusty sidearm. Adds authority to negotiations.",
+        "effects": {"power": 1},
+    },
+    "body_armor": {
+        "name":    "Body Armor",
+        "cost":    2000,
+        "desc":    "Plates and padding. You feel heavier but safer.",
+        "effects": {"power": 1, "health": 2},
+    },
+    "med_kit": {
+        "name":    "Med Kit",
+        "cost":    2000,
+        "desc":    "Field surgery supplies. Solid foam sealant, fake skin, stimulants.",
+        "effects": {"medicine": 2, "science": 1},
+    },
+    "scout_drone": {
+        "name":    "Scout Drone",
+        "cost":    3000,
+        "desc":    "Quiet little flier. Sees what you can't.",
+        "effects": {"perception": 3},
+    },
+    "bodyguard": {
+        "name":    "Hire Bodyguard",
+        "cost":    5000,
+        "desc":    "A scarred mercenary who has seen worse. Much worse.",
+        "effects": {"power": 3, "health": 3, "agility": 1, "perception": 1},
+    },
+    "jet_pack": {
+        "name":    "Jet Pack",
+        "cost":    2000,
+        "desc":    "Short-burst propulsion. Great for escaping. Or arriving dramatically.",
+        "effects": {"agility": 2},
+    },
+}
