@@ -435,6 +435,16 @@ RAND_PRICE_MAX_FRAC  = 3.00
 # Remaining probability draws from the blank (flavour-only) pool.
 RND_EVENT_SPLIT = 0.20   # 20% impact, 80% blank
 
+# ── RARE ENCOUNTERS ──────────────────────────────────────────
+# One-time events that trigger during travel.
+# True = available, False = already seen.
+# Trigger check in do_travel: state["turn"] % 9 > state["rare_enc_num"]
+# Add new entries here — game picks the first available one.
+
+RARE_ENCOUNTERS = {
+    "meteor_shower": True,
+}
+
 # ── CHARACTER SHEET ──────────────────────────────────────────
 # Separate from ship state. Persists across all expeditions and sessions.
 # Stats are numeric. Equipment is a list of purchased item keys.

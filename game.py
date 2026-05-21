@@ -53,6 +53,7 @@ from songs import SONGS
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "data"))
 from blackjack import play_blackjack
 from exp.easy_job import run_easy_job
+from art import ART
 
 try:
     import requests as _requests
@@ -356,6 +357,185 @@ def _run_independent_trader(state):
         state["planets"][dst]["base_prices"][best_good] = _clamp_base(
             best_good, state["planets"][dst]["base_prices"][best_good] - P.IND_TR_PRICE_NUDGE)
 
+# ─── RARE ENCOUNTERS ──────────────────────────────────────────────────────────
+
+def _check_rare_encounter(ship, character, state):
+    """
+    Called during travel. Returns True if a rare encounter fired
+    (caller should skip normal travel events). False otherwise.
+    Trigger: turn % 9 > rare_enc_num AND at least one encounter available.
+    """
+    available = [k for k, v in state["rare_encounters"].items() if v]
+    if not available:
+        return False
+    if not (state["turn"] % 9 > state["rare_enc_num"]):
+        return False
+
+    # Pick the first available encounter
+    enc = available[0]
+    state["rare_encounters"][enc] = False
+    state["rare_enc_num"] += 1
+
+    if enc == "meteor_shower":
+        _rare_meteor_shower(ship, character, state)
+
+    return True
+
+def _rare_meteor_shower(ship, character, state):
+    """One-time encounter: meteor shower disables hyperdrive mid-jump."""
+    print("\n" + "★"*60)
+    print(ART["meteoshowerart"])
+    print("★"*60)
+    print("""
+  Another year, another freight run. But this one hit different.
+
+  A thousand small meteors, each one a fist of stone travelling
+  at speed your hull was not designed to argue with. The hyperdrive
+  takes three direct hits and goes quiet in a way that means it
+  will not be un-quieted by anything you can do out here.
+
+  Travelling in this state would be suicide.
+
+  Using the manoeuvre engine as primary propulsion — a use case
+  it was not built for, and which it makes clear it resents —
+  you drift toward the nearest inhabited rock. Crater-scarred.
+  Mostly barren. Hard place to live, hard place to get into.
+  No wonder it doesn't appear on the main trade routes.
+
+  You land in one piece. That is enough success for today.
+
+  The mechanic you find is already buried in work — falling
+  stones hit more than just your ship tonight. She wipes her
+  hands on a rag and gives you the news straight:
+
+  "Big ship, bad damage. A month, minimum."
+
+  What do you do?""")
+
+    has_power   = character["stats"].get("power", 0) > 0
+    has_medicine = ship["cargo"].get("Medicine", 0) > 0
+
+    options = [
+        ("1", "I can use some gravity. Wait it out."),
+        ("2", "Pay extra — 1,000 cr — and get moving faster."),
+        ("3", "Bluff: priority medical supplies for Lionid kittens on Agrica."),
+    ]
+    if has_power:
+        options.append(("4", "Convince her with the gun. Creatively."))
+    options.append(("0", "...stare at the ceiling. (same as wait)"))
+
+    print()
+    for key, label in options:
+        print(f"  [{key}] {label}")
+
+    valid = {k for k, _ in options}
+    while True:
+        ch = input("\n  Your choice: ").strip().lower()
+        if ch in valid:
+            break
+        print(f"  Choose from: {', '.join(sorted(valid))}")
+
+    print()
+
+    if ch == "1" or ch == "0":
+        # Wait — gain 1000 cr, 1 month passes
+        advance_time(state)
+        ship["credits"] += 1000
+        print("""  You settle in.
+
+  Turns out a crater-colony month isn't the worst thing. You catch
+  a gig on a local cinnamon farm — small operation, honest work,
+  cold mornings. Every evening you watch the meteor shower from
+  the porch. The same shower that stranded you. It's still beautiful.
+
+  The mechanic hands back your keys thirty days later without
+  ceremony. You leave 1,000 credits richer and oddly rested.
+  """)
+        print(f"  +1,000 cr.  Date: {date_str(state)}")
+
+    elif ch == "2":
+        # Pay 1000 cr — instant, no time loss
+        cost = 1000
+        if ship["credits"] < cost:
+            print(f"  You reach for your wallet. {ship['credits']:,} cr. Not enough.")
+            print("  She shrugs. You wait.")
+            advance_time(state)
+            print(f"\n  A month passes the hard way.  Date: {date_str(state)}")
+        else:
+            ship["credits"] -= cost
+            print(f"""  You count out 1,000 credits and set them on the workbench.
+
+  The mechanic looks at the credits. Looks at you. Picks them up.
+
+  "Priority job," she says. "Come back in the morning."
+
+  Money opens doors. You're back in the lane by dawn.
+  """)
+            print(f"  −1,000 cr.  No time lost.")
+
+    elif ch == "3":
+        # Bluff — auto-success if Medicine in cargo, else 50/50
+        if has_medicine:
+            print(f"""  You open the cargo manifest and point at the Medicine crates.
+
+  "Priority medical supplies. Lionid kittens on Agrica.
+   Every day counts."
+
+  The mechanic squints at the crates. Squints at you. The crates
+  are real. The story is plausible enough. She nods slowly.
+
+  "I'll bump you up. Two days."
+
+  You make a mental note to actually deliver the medicine
+  somewhere vaguely medical.
+  """)
+            print("  Bluff successful — cargo backed the story. No time lost.")
+        else:
+            if random.random() < 0.5:
+                print("""  "Priority medical supplies," you say. "Lionid kittens on Agrica.
+   Every hour matters."
+
+  The mechanic stares at your empty cargo hold for a long moment.
+
+  "Right," she says eventually. "Sure. Priority."
+
+  Sarcasm, but she gets to work. Sometimes confidence is inventory.
+  """)
+                print("  Bluff successful — she's seen worse lies. No time lost.")
+            else:
+                advance_time(state)
+                print("""  "Priority medical supplies for Lionid kittens," you say.
+
+  The mechanic doesn't even look up from the engine block she's
+  pulling apart.
+
+  "Everyone has a priority. Local farmers are priority. The hospital
+   is priority. Everyone is priority in their own world."
+
+  She has a point. You wait a month. You are still angry about it.
+  """)
+                print(f"  Bluff failed. 1 month passes.  Date: {date_str(state)}")
+
+    elif ch == "4":
+        # Gun threat — requires power > 0 (already checked in option visibility)
+        # Auto-success with power
+        print(f"""  You don't threaten. You simply exist — visibly armed, unhurried,
+  and clearly not someone who arrived on this rock by choice.
+
+  The mechanic reads the situation in about three seconds.
+
+  "You know what," she says, setting down her wrench. "I just
+   remembered I can have that hyperdrive done by morning."
+
+  She works through the night. You don't sleep much either,
+  but for different reasons. The ship is ready at dawn.
+  The locals give you a wide berth at the fuel depot.
+  You don't mind.
+  """)
+        print("  Intimidation successful. No time lost.")
+
+    input("\n  [Enter to continue your journey...]")
+
 # ─── RANDOM EVENTS ────────────────────────────────────────────────────────────
 
 def _fire_random_event(state):
@@ -601,7 +781,7 @@ def do_sell(ship, state):
 
 # ─── TRAVEL ───────────────────────────────────────────────────────────────────
 
-def do_travel(ship, state):
+def do_travel(ship, character, state):
     if ship["fuel"] < P.MIN_FUEL_TO_DEPART:
         print(f"Need ≥{P.MIN_FUEL_TO_DEPART} fuel. Refuel in Engineering Bay."); return
     other = [p for p in P.PLANET_NAMES if p != ship["location"]]
@@ -639,11 +819,14 @@ def do_travel(ship, state):
         alive = _pirate_encounter(ship, state)
         if not alive: return "GAME_OVER"
     else:
-        roll = random.random(); cum = 0.0
-        for key, prob in P.TRAVEL_EVENT_PROBS.items():
-            cum += prob
-            if roll < cum:
-                _travel_event(key, ship, state, dest); break
+        # Rare encounter takes priority over normal travel events
+        rare_fired = _check_rare_encounter(ship, character, state)
+        if not rare_fired:
+            roll = random.random(); cum = 0.0
+            for key, prob in P.TRAVEL_EVENT_PROBS.items():
+                cum += prob
+                if roll < cum:
+                    _travel_event(key, ship, state, dest); break
 
     _deliver_passenger(ship, state)
     _spawn_passenger(ship, state)
@@ -1355,6 +1538,8 @@ def save_game(ship, character, state):
         "passenger_waiting":      state.get("passenger_waiting"),
         "festival_drops_applied": list(state["festival_drops_applied"]),
         "blackjack_tokens":       state.get("blackjack_tokens", 3),
+        "rare_encounters":        state.get("rare_encounters", dict(P.RARE_ENCOUNTERS)),
+        "rare_enc_num":           state.get("rare_enc_num", 0),
     }
     try:
         with open(P.SAVE_FILE, "w") as f: json.dump(data, f, indent=2)
@@ -1381,6 +1566,8 @@ def load_game(planets, state):
         state["passenger_waiting"]      = data.get("passenger_waiting")
         state["festival_drops_applied"] = set(data.get("festival_drops_applied", []))
         state["blackjack_tokens"]       = data.get("blackjack_tokens", 3)
+        state["rare_encounters"]        = data.get("rare_encounters", dict(P.RARE_ENCOUNTERS))
+        state["rare_enc_num"]           = data.get("rare_enc_num", 0)
         character = data.get("character", copy.deepcopy(P.CHAR_START))
         print(f"📂 Loaded from {P.SAVE_FILE}")
         return data["ship"], character
@@ -1454,6 +1641,8 @@ def new_state(planets, randomise=False):
         "festival_drops_applied": set(),
         "news_printed":           False,
         "blackjack_tokens":       3,
+        "rare_encounters":        dict(P.RARE_ENCOUNTERS),
+        "rare_enc_num":           0,
     }
 
 # ─── MAIN ─────────────────────────────────────────────────────────────────────
@@ -1533,7 +1722,7 @@ def main():
             r = do_sell(ship, state)
             if r == "QUIT": break
         elif action == 3:
-            r = do_travel(ship, state)
+            r = do_travel(ship, character, state)
             if r == "GAME_OVER": break
             if r == "QUIT": break
         elif action == 4: show_status(ship, state)
